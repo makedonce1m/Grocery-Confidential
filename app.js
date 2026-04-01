@@ -7,15 +7,16 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:               'items',
-  categoryFilter:     'all',
-  searchQuery:        '',
-  editMode:           false,
-  categories:         [],
-  items:              [],
-  groceryList:        [],
-  deletedItemIds:     [],
-  deletedCategoryIds: [],
+  view:                'items',
+  categoryFilter:      'all',
+  searchQuery:         '',
+  editMode:            false,
+  categories:          [],
+  items:               [],
+  groceryList:         [],
+  deletedItemIds:      [],
+  deletedCategoryIds:  [],
+  collapsedCategories: new Set(),
 };
 
 // ══════════════════════════════════════════════
@@ -327,14 +328,32 @@ function renderItems() {
     });
     state.categories.forEach(cat => {
       if (!grouped[cat.id]?.length) return;
-      html += `<div class="section-hdr">${esc(cat.name)}</div>`;
-      grouped[cat.id].forEach(item => html += itemCard(item, cat));
+      const collapsed = state.collapsedCategories.has(cat.id);
+      html += `<div class="section-hdr${collapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}">
+        <span class="section-hdr-name">${esc(cat.name)}</span>
+        <span class="section-hdr-chevron">▼</span>
+      </div>`;
+      if (!collapsed) {
+        grouped[cat.id].forEach(item => html += itemCard(item, cat));
+      }
     });
   } else {
     items.forEach(item => html += itemCard(item, catById(item.categoryId)));
   }
 
   list.innerHTML = html;
+
+  list.querySelectorAll('.section-hdr[data-cat-id]').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const catId = hdr.dataset.catId;
+      if (state.collapsedCategories.has(catId)) {
+        state.collapsedCategories.delete(catId);
+      } else {
+        state.collapsedCategories.add(catId);
+      }
+      renderItems();
+    });
+  });
 
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
@@ -586,7 +605,6 @@ function init() {
 
   // ── Confirm: Add Category ─────────────────────
   document.getElementById('confirm-add-category').addEventListener('click', () => {
-    const emojiEl = document.getElementById('cat-emoji');
     const nameEl  = document.getElementById('cat-name');
     const name    = nameEl.value.trim();
 

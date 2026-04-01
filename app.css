@@ -3,25 +3,25 @@
 
 /* ── Tokens ── */
 :root {
-  --green:       #2D6A4F;
-  --green-lt:    #52B788;
-  --green-dk:    #1B4332;
+  --green:       #52B788;
+  --green-lt:    #74C69D;
+  --green-dk:    #2D6A4F;
   --accent:      #74C69D;
-  --bg:          #F0F7F2;
-  --surface:     #FFFFFF;
-  --surface-2:   #F6FAF7;
-  --text:        #1A2020;
-  --text-2:      #4B5E55;
-  --text-3:      #96AFA4;
-  --border:      #DDE9E3;
-  --danger:      #EF4444;
-  --ok:          #10B981;
+  --bg:          #111111;
+  --surface:     #1C1C1E;
+  --surface-2:   #2C2C2E;
+  --text:        #F2F2F7;
+  --text-2:      #AEAEB2;
+  --text-3:      #636366;
+  --border:      #38383A;
+  --danger:      #FF453A;
+  --ok:          #30D158;
   --r-sm:        8px;
   --r-md:        14px;
   --r-lg:        22px;
   --r-full:      9999px;
-  --shadow-sm:   0 1px 4px rgba(0,0,0,.07);
-  --shadow-md:   0 4px 14px rgba(0,0,0,.10);
+  --shadow-sm:   0 1px 4px rgba(0,0,0,.3);
+  --shadow-md:   0 4px 14px rgba(0,0,0,.4);
   --nav-h:       72px;
   --hdr-h:       60px;
   --safe-b:      env(safe-area-inset-bottom, 0px);
@@ -71,7 +71,7 @@ html, body {
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(27,67,50,.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
 }
 .header-title { display: flex; align-items: center; gap: 9px; }
 .header-logo  { font-size: 22px; line-height: 1; }
@@ -189,12 +189,25 @@ html, body {
 
 /* section header (group by category) */
 .section-hdr {
-  font-size: 11px;
+  font-size: 16px;
   font-weight: 700;
+  color: var(--text-2);
+  padding: 14px 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.section-hdr:active { opacity: .7; }
+.section-hdr-chevron {
+  font-size: 13px;
   color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 10px 2px 4px;
+  transition: transform .2s;
+}
+.section-hdr.collapsed .section-hdr-chevron {
+  transform: rotate(-90deg);
 }
 
 /* ── Item Card ── */
@@ -216,7 +229,7 @@ html, body {
 .item-tag   {
   font-size: 11px; font-weight: 600;
   color: var(--green);
-  background: rgba(45,106,79,.10);
+  background: rgba(82,183,136,.15);
   padding: 2px 8px;
   border-radius: var(--r-full);
 }
@@ -246,29 +259,28 @@ html, body {
   font-weight: 700;
 }
 
-/* ── FAB ── */
-.fab {
-  position: fixed;
-  right: 20px;
-  bottom: calc(var(--nav-h) + var(--safe-b) + 14px);
+/* ── Nav FAB ── */
+.nav-fab {
   width: 52px; height: 52px;
   border-radius: var(--r-full);
   background: var(--green);
   color: #fff;
   border: none;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 300;
-  box-shadow: 0 4px 18px rgba(45,106,79,.42);
+  box-shadow: 0 4px 18px rgba(0,0,0,.4);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 90;
+  flex-shrink: 0;
   font-family: var(--font);
   line-height: 1;
   transition: all .14s;
+  margin-top: -18px;
+  align-self: flex-start;
 }
-.fab:active { transform: scale(.91); box-shadow: 0 2px 8px rgba(45,106,79,.3); }
+.nav-fab:active { transform: scale(.91); box-shadow: 0 2px 8px rgba(0,0,0,.3); }
 
 /* ── Empty State ── */
 .empty-state {
@@ -323,7 +335,7 @@ html, body {
   margin-top: 3px;
   font-size: 11px; font-weight: 600;
   color: var(--green);
-  background: rgba(45,106,79,.10);
+  background: rgba(82,183,136,.15);
   padding: 2px 8px;
   border-radius: var(--r-full);
 }
@@ -366,7 +378,7 @@ html, body {
   flex-shrink: 0;
   transition: all .13s;
 }
-.g-del:active { background: #FEE2E2; color: var(--danger); }
+.g-del:active { background: rgba(255,69,58,.15); color: var(--danger); }
 
 /* ── Bottom Nav ── */
 .bottom-nav {
@@ -614,7 +626,7 @@ html, body {
 .trash-btn {
   width: 36px; height: 36px;
   border-radius: var(--r-full);
-  background: #FEE2E2;
+  background: rgba(255,69,58,.15);
   color: var(--danger);
   border: none;
   font-size: 17px;
@@ -651,7 +663,3 @@ html, body {
   padding: 4px 0;
 }
 
-/* ── Desktop padding ── */
-@media (min-width: 600px) {
-  .fab { right: calc(50vw - 300px + 20px); }
-}
