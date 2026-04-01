@@ -1,4 +1,4 @@
-const CACHE = 'grocery-confidential-v1';
+const CACHE = 'grocery-confidential-v2';
 const ASSETS = ['/', '/index.html', '/app.css', '/listdatabase.js', '/app.js', '/manifest.json', '/icons/icon.svg'];
 
 self.addEventListener('install', e => {
