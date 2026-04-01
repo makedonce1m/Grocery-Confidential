@@ -20,7 +20,6 @@
     <div id="view-items" class="view active">
       <header class="app-header">
         <div class="header-title">
-          <span class="header-logo">🛒</span>
           <h1>Grocery Confidential</h1>
         </div>
         <button class="header-btn" id="edit-mode-btn">Edit</button>
@@ -44,7 +43,6 @@
       <div class="items-scroll">
         <div class="items-list" id="items-list"></div>
         <div class="empty-state" id="items-empty" hidden>
-          <span>🔍</span>
           <p>No items found</p>
           <button class="btn-primary" id="empty-add-btn">Add an item</button>
         </div>
@@ -57,7 +55,6 @@
     <div id="view-grocery" class="view">
       <header class="app-header">
         <div class="header-title">
-          <span class="header-logo">🛍️</span>
           <h1>Grocery List</h1>
         </div>
         <button class="header-btn" id="clear-completed-btn">Clear done</button>
@@ -66,7 +63,6 @@
       <div class="items-scroll">
         <div class="grocery-list" id="grocery-list"></div>
         <div class="empty-state" id="grocery-empty" hidden>
-          <span>🛒</span>
           <p>Your list is empty</p>
           <button class="btn-primary" id="go-browse-btn">Browse Items</button>
         </div>
@@ -76,11 +72,9 @@
     <!-- ── BOTTOM NAV ── -->
     <nav class="bottom-nav">
       <button class="nav-btn active" id="nav-items" data-view="items">
-        <span class="nav-icon">🥦</span>
         <span class="nav-label">Items</span>
       </button>
       <button class="nav-btn" id="nav-grocery" data-view="grocery">
-        <span class="nav-icon">🛒</span>
         <span class="nav-label">Grocery</span>
         <span class="nav-badge" id="grocery-badge" hidden>0</span>
       </button>
@@ -124,10 +118,6 @@
           <button class="modal-close" data-modal="modal-add-category">✕</button>
         </div>
         <div class="modal-body">
-          <div class="field">
-            <label for="cat-emoji">Emoji</label>
-            <input type="text" id="cat-emoji" placeholder="📦" maxlength="2">
-          </div>
           <div class="field">
             <label for="cat-name">Category Name <span class="req">*</span></label>
             <input type="text" id="cat-name" placeholder="e.g. International Foods">
