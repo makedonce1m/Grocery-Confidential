@@ -23,6 +23,7 @@
           <span class="header-logo">🛒</span>
           <h1>Grocery Confidential</h1>
         </div>
+        <button class="header-btn" id="edit-mode-btn">Edit</button>
       </header>
 
       <div class="search-wrap">
@@ -135,6 +136,23 @@
         <div class="modal-footer">
           <button class="btn-secondary" data-modal="modal-add-category">Cancel</button>
           <button class="btn-primary" id="confirm-add-category">Add Category</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Confirm Delete Category ── -->
+    <div class="modal-overlay" id="modal-confirm-del-cat" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Delete Category</h2>
+          <button class="modal-close" data-modal="modal-confirm-del-cat">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-del-cat-msg" class="confirm-msg"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" data-modal="modal-confirm-del-cat">Cancel</button>
+          <button class="btn-danger" id="confirm-del-cat-btn">Delete</button>
         </div>
       </div>
     </div>
