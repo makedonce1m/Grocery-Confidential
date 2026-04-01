@@ -7,17 +7,15 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:                'items',
-  categoryFilter:      'all',
-  searchQuery:         '',
-  editMode:            false,
-  categories:          [],
-  items:               [],
-  groceryList:         [],
-  deletedItemIds:      [],
-  deletedCategoryIds:  [],
-  collapsedCategories:  new Set(),
-  checkedCollapsed:     true,
+  view:               'items',
+  categoryFilter:     'all',
+  searchQuery:        '',
+  editMode:           false,
+  categories:         [],
+  items:              [],
+  groceryList:        [],
+  deletedItemIds:     [],
+  deletedCategoryIds: [],
 };
 
 // ══════════════════════════════════════════════
@@ -329,32 +327,14 @@ function renderItems() {
     });
     state.categories.forEach(cat => {
       if (!grouped[cat.id]?.length) return;
-      const collapsed = state.collapsedCategories.has(cat.id);
-      html += `<div class="section-hdr collapsible${collapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}">
-        <span class="section-hdr-name">${esc(cat.name)}</span>
-        <span class="section-hdr-chevron">▼</span>
-      </div>`;
-      if (!collapsed) {
-        grouped[cat.id].forEach(item => html += itemCard(item, cat));
-      }
+      html += `<div class="section-hdr"><span class="section-hdr-name">${esc(cat.name)}</span></div>`;
+      grouped[cat.id].forEach(item => html += itemCard(item, cat));
     });
   } else {
     items.forEach(item => html += itemCard(item, catById(item.categoryId)));
   }
 
   list.innerHTML = html;
-
-  list.querySelectorAll('.section-hdr[data-cat-id]').forEach(hdr => {
-    hdr.addEventListener('click', () => {
-      const catId = hdr.dataset.catId;
-      if (state.collapsedCategories.has(catId)) {
-        state.collapsedCategories.delete(catId);
-      } else {
-        state.collapsedCategories.add(catId);
-      }
-      renderItems();
-    });
-  });
 
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
@@ -440,27 +420,13 @@ function renderGrocery() {
   const knownIds = new Set(state.categories.map(c => c.id));
   unchecked.filter(g => !knownIds.has(g.categoryId)).forEach(g => { html += renderItem(g); });
 
-  // Checked section at the bottom (collapsed by default)
+  // Checked section at the bottom — always visible
   if (checked.length) {
-    const col = state.checkedCollapsed;
-    html += `<div class="section-hdr collapsible${col ? ' collapsed' : ''}" id="checked-section-hdr">
-      <span class="section-hdr-name">Checked (${checked.length})</span>
-      <span class="section-hdr-chevron">▼</span>
-    </div>`;
-    if (!col) {
-      checked.sort((a, b) => a.addedAt - b.addedAt).forEach(g => { html += renderItem(g); });
-    }
+    html += `<div class="section-hdr"><span class="section-hdr-name">Checked (${checked.length})</span></div>`;
+    checked.sort((a, b) => a.addedAt - b.addedAt).forEach(g => { html += renderItem(g); });
   }
 
   list.innerHTML = html;
-
-  const checkedHdr = document.getElementById('checked-section-hdr');
-  if (checkedHdr) {
-    checkedHdr.addEventListener('click', () => {
-      state.checkedCollapsed = !state.checkedCollapsed;
-      renderGrocery();
-    });
-  }
 
   // Single delegated listener
   list.querySelectorAll('[data-action]').forEach(el => {

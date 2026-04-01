@@ -198,22 +198,6 @@ body {
   font-weight: 700;
   color: var(--text-2);
   padding: 14px 4px 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.section-hdr.collapsible { cursor: pointer; }
-.section-hdr.collapsible:active { opacity: .7; }
-.section-hdr-chevron {
-  font-size: 13px;
-  color: var(--text-3);
-  transition: transform .2s;
-}
-.section-hdr.collapsed .section-hdr-chevron {
-  transform: rotate(-90deg);
 }
 
 /* ── Item Card ── */
