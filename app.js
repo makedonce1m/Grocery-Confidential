@@ -7,12 +7,15 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:           'items',
-  categoryFilter: 'all',
-  searchQuery:    '',
-  categories:     [],
-  items:          [],
-  groceryList:    [],
+  view:               'items',
+  categoryFilter:     'all',
+  searchQuery:        '',
+  editMode:           false,
+  categories:         [],
+  items:              [],
+  groceryList:        [],
+  deletedItemIds:     [],
+  deletedCategoryIds: [],
 };
 
 // ══════════════════════════════════════════════
@@ -23,17 +26,34 @@ const STORE_KEY = 'grocery_confidential_v1';
 
 function saveData() {
   const payload = {
-    customCategories: state.categories.filter(c => c.custom),
-    customItems:      state.items.filter(i => i.custom),
-    groceryList:      state.groceryList,
+    customCategories:   state.categories.filter(c => c.custom),
+    customItems:        state.items.filter(i => i.custom),
+    groceryList:        state.groceryList,
+    deletedItemIds:     state.deletedItemIds,
+    deletedCategoryIds: state.deletedCategoryIds,
   };
   try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
   catch (e) { console.warn('Could not save:', e); }
 }
 
 function loadData() {
-  state.categories = DEFAULT_CATEGORIES.map(c => ({ ...c }));
-  state.items      = DEFAULT_ITEMS.map(i => ({ ...i }));
+  state.deletedItemIds     = [];
+  state.deletedCategoryIds = [];
+
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      state.deletedItemIds     = data.deletedItemIds     || [];
+      state.deletedCategoryIds = data.deletedCategoryIds || [];
+    }
+  } catch (e) {}
+
+  const delItems = new Set(state.deletedItemIds);
+  const delCats  = new Set(state.deletedCategoryIds);
+
+  state.categories  = DEFAULT_CATEGORIES.filter(c => !delCats.has(c.id)).map(c => ({ ...c }));
+  state.items       = DEFAULT_ITEMS.filter(i => !delItems.has(i.id)).map(i => ({ ...i }));
   state.groceryList = [];
 
   try {
@@ -182,6 +202,62 @@ function addItem(name, categoryId, unit) {
   return item;
 }
 
+function toggleEditMode() {
+  state.editMode = !state.editMode;
+  document.getElementById('edit-mode-btn').textContent = state.editMode ? 'Done' : 'Edit';
+  document.getElementById('fab-add-item').style.display = state.editMode ? 'none' : '';
+  renderPills();
+  renderItems();
+}
+
+function deleteItem(itemId) {
+  const item = itemById(itemId);
+  if (!item) return;
+  const name = item.name;
+  if (!item.custom) state.deletedItemIds.push(itemId);
+  state.items = state.items.filter(i => i.id !== itemId);
+  state.groceryList = state.groceryList.filter(g => g.itemId !== itemId);
+  saveData();
+  updateBadge();
+  renderItems();
+  if (state.view === 'grocery') renderGrocery();
+  showToast(`${name} removed`);
+}
+
+function deleteCategory(categoryId) {
+  const cat = catById(categoryId);
+  if (!cat) return;
+  const itemCount = state.items.filter(i => i.categoryId === categoryId).length;
+  const msg = itemCount > 0
+    ? `Delete "${cat.name}"? This will also remove ${itemCount} item${itemCount !== 1 ? 's' : ''}.`
+    : `Delete "${cat.name}"?`;
+  document.getElementById('confirm-del-cat-msg').textContent = msg;
+  document.getElementById('confirm-del-cat-btn').dataset.catId = categoryId;
+  openModal('modal-confirm-del-cat');
+}
+
+function confirmDeleteCategory(categoryId) {
+  const cat = catById(categoryId);
+  if (!cat) return;
+  const name = cat.name;
+  if (!cat.custom) state.deletedCategoryIds.push(categoryId);
+  state.items.forEach(i => {
+    if (i.categoryId === categoryId && !i.custom)
+      state.deletedItemIds.push(i.id);
+  });
+  const itemIds = new Set(state.items.filter(i => i.categoryId === categoryId).map(i => i.id));
+  state.items = state.items.filter(i => i.categoryId !== categoryId);
+  state.groceryList = state.groceryList.filter(g => !itemIds.has(g.itemId));
+  state.categories = state.categories.filter(c => c.id !== categoryId);
+  if (state.categoryFilter === categoryId) state.categoryFilter = 'all';
+  saveData();
+  updateBadge();
+  renderPills();
+  renderItems();
+  if (state.view === 'grocery') renderGrocery();
+  showToast(`${name} deleted`);
+}
+
 // ══════════════════════════════════════════════
 //  RENDER
 // ══════════════════════════════════════════════
@@ -205,15 +281,26 @@ function renderPills() {
     })
   );
 
+  wrap.querySelectorAll('.pill-del-btn').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteCategory(btn.dataset.delCat);
+    })
+  );
+
   document.getElementById('pill-add-cat').addEventListener('click', () =>
     openModal('modal-add-category')
   );
 }
 
 function pill(id, name, emoji, active) {
-  return `<button class="pill${active ? ' active' : ''}" data-cat="${esc(id)}">
+  const btn = `<button class="pill${active ? ' active' : ''}" data-cat="${esc(id)}">
     ${emoji ? `<span>${emoji}</span>` : ''}${esc(name)}
   </button>`;
+  if (state.editMode && id !== 'all') {
+    return `<div class="pill-wrap">${btn}<button class="pill-del-btn" data-del-cat="${esc(id)}" aria-label="Delete ${esc(name)}">×</button></div>`;
+  }
+  return btn;
 }
 
 function renderItems() {
@@ -257,12 +344,22 @@ function renderItems() {
       addToGrocery(btn.dataset.itemId);
     })
   );
+
+  list.querySelectorAll('.trash-btn').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteItem(btn.dataset.delItem);
+    })
+  );
 }
 
 function itemCard(item, cat) {
   const inList = !!groceryByItemId(item.id);
   const emoji  = cat ? cat.emoji : '📦';
   const tag    = cat ? cat.name  : '';
+  const actionBtn = state.editMode
+    ? `<button class="trash-btn" data-del-item="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">🗑️</button>`
+    : `<button class="add-btn${inList ? ' in-list' : ''}" data-item-id="${esc(item.id)}" aria-label="Add to grocery list">${inList ? '✓' : '+'}</button>`;
   return `<div class="item-card">
     <span class="item-emoji">${emoji}</span>
     <div class="item-info">
@@ -272,9 +369,7 @@ function itemCard(item, cat) {
         ${item.unit ? `<span class="item-unit">${esc(item.unit)}</span>` : ''}
       </div>
     </div>
-    <button class="add-btn${inList ? ' in-list' : ''}" data-item-id="${esc(item.id)}" aria-label="Add to grocery list">
-      ${inList ? '✓' : '+'}
-    </button>
+    ${actionBtn}
   </div>`;
 }
 
@@ -439,6 +534,9 @@ function init() {
   });
   document.getElementById('go-browse-btn').addEventListener('click', () => switchView('items'));
 
+  // ── Edit mode ─────────────────────────────────
+  document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
+
   // ── Clear completed ───────────────────────────
   document.getElementById('clear-completed-btn').addEventListener('click', clearCompleted);
 
@@ -448,10 +546,17 @@ function init() {
   );
 
   // Close modal on overlay click
-  ['modal-add-item', 'modal-add-category'].forEach(id => {
+  ['modal-add-item', 'modal-add-category', 'modal-confirm-del-cat'].forEach(id => {
     document.getElementById(id).addEventListener('click', e => {
       if (e.target.id === id) closeModal(id);
     });
+  });
+
+  // ── Confirm: Delete Category ──────────────────
+  document.getElementById('confirm-del-cat-btn').addEventListener('click', () => {
+    const catId = document.getElementById('confirm-del-cat-btn').dataset.catId;
+    closeModal('modal-confirm-del-cat');
+    confirmDeleteCategory(catId);
   });
 
   // ── Confirm: Add Item ─────────────────────────
