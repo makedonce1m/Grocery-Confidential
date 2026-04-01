@@ -70,12 +70,23 @@
 
     <!-- ── BOTTOM NAV ── -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" id="nav-items" data-view="items">
-        <span class="nav-label">Items</span>
+      <button class="nav-btn active" id="nav-items" data-view="items" aria-label="Items">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6"  x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <circle cx="3" cy="6"  r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="18" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
       </button>
       <button class="nav-fab" id="fab-add-item" aria-label="Add item">+</button>
-      <button class="nav-btn" id="nav-grocery" data-view="grocery">
-        <span class="nav-label">Grocery</span>
+      <button class="nav-btn" id="nav-grocery" data-view="grocery" aria-label="Grocery list">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
         <span class="nav-badge" id="grocery-badge" hidden>0</span>
       </button>
     </nav>
