@@ -7,15 +7,16 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:               'items',
-  categoryFilter:     'all',
-  searchQuery:        '',
-  editMode:           false,
-  categories:         [],
-  items:              [],
-  groceryList:        [],
-  deletedItemIds:     [],
-  deletedCategoryIds: [],
+  view:                'items',
+  categoryFilter:      'all',
+  searchQuery:         '',
+  editMode:            false,
+  categories:          [],
+  items:               [],
+  groceryList:         [],
+  deletedItemIds:      [],
+  deletedCategoryIds:  [],
+  collapsedCategories: new Set(),
 };
 
 // ══════════════════════════════════════════════
@@ -294,9 +295,7 @@ function renderPills() {
 }
 
 function pill(id, name, emoji, active) {
-  const btn = `<button class="pill${active ? ' active' : ''}" data-cat="${esc(id)}">
-    ${emoji ? `<span>${emoji}</span>` : ''}${esc(name)}
-  </button>`;
+  const btn = `<button class="pill${active ? ' active' : ''}" data-cat="${esc(id)}">${esc(name)}</button>`;
   if (state.editMode && id !== 'all') {
     return `<div class="pill-wrap">${btn}<button class="pill-del-btn" data-del-cat="${esc(id)}" aria-label="Delete ${esc(name)}">×</button></div>`;
   }
@@ -329,14 +328,32 @@ function renderItems() {
     });
     state.categories.forEach(cat => {
       if (!grouped[cat.id]?.length) return;
-      html += `<div class="section-hdr">${cat.emoji} ${esc(cat.name)}</div>`;
-      grouped[cat.id].forEach(item => html += itemCard(item, cat));
+      const collapsed = state.collapsedCategories.has(cat.id);
+      html += `<div class="section-hdr${collapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}">
+        <span class="section-hdr-name">${esc(cat.name)}</span>
+        <span class="section-hdr-chevron">▼</span>
+      </div>`;
+      if (!collapsed) {
+        grouped[cat.id].forEach(item => html += itemCard(item, cat));
+      }
     });
   } else {
     items.forEach(item => html += itemCard(item, catById(item.categoryId)));
   }
 
   list.innerHTML = html;
+
+  list.querySelectorAll('.section-hdr[data-cat-id]').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const catId = hdr.dataset.catId;
+      if (state.collapsedCategories.has(catId)) {
+        state.collapsedCategories.delete(catId);
+      } else {
+        state.collapsedCategories.add(catId);
+      }
+      renderItems();
+    });
+  });
 
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
@@ -358,10 +375,9 @@ function itemCard(item, cat) {
   const emoji  = cat ? cat.emoji : '📦';
   const tag    = cat ? cat.name  : '';
   const actionBtn = state.editMode
-    ? `<button class="trash-btn" data-del-item="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">🗑️</button>`
+    ? `<button class="trash-btn" data-del-item="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">✕</button>`
     : `<button class="add-btn${inList ? ' in-list' : ''}" data-item-id="${esc(item.id)}" aria-label="Add to grocery list">${inList ? '✓' : '+'}</button>`;
   return `<div class="item-card">
-    <span class="item-emoji">${emoji}</span>
     <div class="item-info">
       <div class="item-name">${esc(item.name)}</div>
       <div class="item-meta">
@@ -400,7 +416,7 @@ function renderGrocery() {
       </div>
       <div class="g-info">
         <div class="g-name">${esc(g.itemName)}</div>
-        <span class="g-cat">${g.categoryEmoji} ${esc(g.categoryName)}</span>
+        <span class="g-cat">${esc(g.categoryName)}</span>
       </div>
       <div class="qty">
         <button class="qty-btn" data-action="minus" data-gid="${esc(g.id)}" aria-label="Less">−</button>
@@ -462,7 +478,7 @@ function closeModal(id) {
 function syncCategorySelect() {
   const sel = document.getElementById('item-category');
   sel.innerHTML = state.categories
-    .map(c => `<option value="${esc(c.id)}">${c.emoji} ${esc(c.name)}</option>`)
+    .map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`)
     .join('');
   if (state.categoryFilter !== 'all')
     sel.value = state.categoryFilter;
@@ -589,7 +605,6 @@ function init() {
 
   // ── Confirm: Add Category ─────────────────────
   document.getElementById('confirm-add-category').addEventListener('click', () => {
-    const emojiEl = document.getElementById('cat-emoji');
     const nameEl  = document.getElementById('cat-name');
     const name    = nameEl.value.trim();
 
@@ -601,10 +616,9 @@ function init() {
       return;
     }
 
-    const cat = addCategory(emojiEl.value.trim(), name);
+    const cat = addCategory('', name);
     closeModal('modal-add-category');
-    emojiEl.value = '';
-    nameEl.value  = '';
+    nameEl.value = '';
 
     state.categoryFilter = cat.id;
     renderPills();
