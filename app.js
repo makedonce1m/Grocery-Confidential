@@ -16,7 +16,8 @@ const state = {
   groceryList:         [],
   deletedItemIds:      [],
   deletedCategoryIds:  [],
-  collapsedCategories: new Set(),
+  collapsedCategories:  new Set(),
+  checkedCollapsed:     true,
 };
 
 // ══════════════════════════════════════════════
@@ -403,17 +404,8 @@ function renderGrocery() {
   list.hidden  = false;
   empty.hidden = true;
 
-  // Group by category (maintain category order), unchecked first within each group
-  const grouped = {};
-  state.groceryList.forEach(g => {
-    (grouped[g.categoryId] = grouped[g.categoryId] || []).push(g);
-  });
-  Object.values(grouped).forEach(group =>
-    group.sort((a, b) => {
-      if (a.checked !== b.checked) return a.checked ? 1 : -1;
-      return a.addedAt - b.addedAt;
-    })
-  );
+  const unchecked = state.groceryList.filter(g => !g.checked);
+  const checked   = state.groceryList.filter(g =>  g.checked);
 
   const renderItem = g => `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
@@ -431,17 +423,44 @@ function renderGrocery() {
       <button class="g-del" data-action="delete" data-gid="${esc(g.id)}" aria-label="Remove">✕</button>
     </div>`;
 
+  // Group unchecked items by category
+  const grouped = {};
+  unchecked.forEach(g => {
+    (grouped[g.categoryId] = grouped[g.categoryId] || []).push(g);
+  });
+  Object.values(grouped).forEach(grp => grp.sort((a, b) => a.addedAt - b.addedAt));
+
   let html = '';
   state.categories.forEach(cat => {
     if (!grouped[cat.id]?.length) return;
     html += `<div class="section-hdr"><span class="section-hdr-name">${esc(cat.name)}</span></div>`;
     grouped[cat.id].forEach(g => { html += renderItem(g); });
   });
-  // fallback for any items whose category wasn't found
+  // fallback for items with unknown category
   const knownIds = new Set(state.categories.map(c => c.id));
-  state.groceryList.filter(g => !knownIds.has(g.categoryId)).forEach(g => { html += renderItem(g); });
+  unchecked.filter(g => !knownIds.has(g.categoryId)).forEach(g => { html += renderItem(g); });
+
+  // Checked section at the bottom (collapsed by default)
+  if (checked.length) {
+    const col = state.checkedCollapsed;
+    html += `<div class="section-hdr collapsible${col ? ' collapsed' : ''}" id="checked-section-hdr">
+      <span class="section-hdr-name">Checked (${checked.length})</span>
+      <span class="section-hdr-chevron">▼</span>
+    </div>`;
+    if (!col) {
+      checked.sort((a, b) => a.addedAt - b.addedAt).forEach(g => { html += renderItem(g); });
+    }
+  }
 
   list.innerHTML = html;
+
+  const checkedHdr = document.getElementById('checked-section-hdr');
+  if (checkedHdr) {
+    checkedHdr.addEventListener('click', () => {
+      state.checkedCollapsed = !state.checkedCollapsed;
+      renderGrocery();
+    });
+  }
 
   // Single delegated listener
   list.querySelectorAll('[data-action]').forEach(el => {
