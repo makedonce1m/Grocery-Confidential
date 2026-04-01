@@ -263,42 +263,53 @@ function confirmDeleteCategory(categoryId) {
 // ══════════════════════════════════════════════
 
 function renderPills() {
-  const wrap = document.getElementById('category-pills');
-  let html = pill('all', 'All', '', state.categoryFilter === 'all');
+  // Update the dropdown label to reflect current selection
+  const cat = catById(state.categoryFilter);
+  document.getElementById('cat-select-label').textContent = cat ? cat.name : 'All';
+}
 
-  state.categories.forEach(c =>
-    html += pill(c.id, c.name, c.emoji, state.categoryFilter === c.id)
-  );
+function openCatDropdown() {
+  const dropdown = document.getElementById('cat-dropdown');
+  const allActive = state.categoryFilter === 'all';
+  let html = `<div class="cat-option${allActive ? ' active' : ''}" data-cat="all">All</div>`;
 
-  html += `<button class="pill pill-add" id="pill-add-cat">+ Category</button>`;
-  wrap.innerHTML = html;
+  state.categories.forEach(c => {
+    const active = state.categoryFilter === c.id;
+    html += `<div class="cat-option${active ? ' active' : ''}" data-cat="${esc(c.id)}">
+      <span class="cat-option-name">${esc(c.name)}</span>
+      ${state.editMode ? `<button class="cat-option-del" data-del-cat="${esc(c.id)}" aria-label="Delete ${esc(c.name)}">✕</button>` : ''}
+    </div>`;
+  });
 
-  wrap.querySelectorAll('.pill[data-cat]').forEach(btn =>
-    btn.addEventListener('click', () => {
-      state.categoryFilter = btn.dataset.cat;
+  html += `<div class="cat-option cat-option-add" id="cat-option-add">+ Add Category</div>`;
+  dropdown.innerHTML = html;
+  dropdown.hidden = false;
+
+  dropdown.querySelectorAll('.cat-option[data-cat]').forEach(opt =>
+    opt.addEventListener('click', () => {
+      state.categoryFilter = opt.dataset.cat;
+      closeCatDropdown();
       renderPills();
       renderItems();
     })
   );
 
-  wrap.querySelectorAll('.pill-del-btn').forEach(btn =>
+  dropdown.querySelectorAll('.cat-option-del').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      closeCatDropdown();
       deleteCategory(btn.dataset.delCat);
     })
   );
 
-  document.getElementById('pill-add-cat').addEventListener('click', () =>
-    openModal('modal-add-category')
-  );
+  document.getElementById('cat-option-add').addEventListener('click', () => {
+    closeCatDropdown();
+    openModal('modal-add-category');
+  });
 }
 
-function pill(id, name, emoji, active) {
-  const btn = `<button class="pill${active ? ' active' : ''}" data-cat="${esc(id)}">${esc(name)}</button>`;
-  if (state.editMode && id !== 'all') {
-    return `<div class="pill-wrap">${btn}<button class="pill-del-btn" data-del-cat="${esc(id)}" aria-label="Delete ${esc(name)}">×</button></div>`;
-  }
-  return btn;
+function closeCatDropdown() {
+  document.getElementById('cat-dropdown').hidden = true;
 }
 
 function renderItems() {
@@ -515,6 +526,16 @@ function init() {
   renderPills();
   renderItems();
   updateBadge();
+
+  // ── Category dropdown ────────────────────────
+  document.getElementById('cat-select-btn').addEventListener('click', () => {
+    const dropdown = document.getElementById('cat-dropdown');
+    dropdown.hidden ? openCatDropdown() : closeCatDropdown();
+  });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('cat-select-wrap').contains(e.target))
+      closeCatDropdown();
+  });
 
   // ── Nav ──────────────────────────────────────
   document.querySelectorAll('.nav-btn[data-view]').forEach(btn =>
