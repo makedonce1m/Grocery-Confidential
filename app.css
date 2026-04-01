@@ -117,7 +117,7 @@ html, body {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text);
   outline: none;
   font-family: var(--font);
@@ -196,11 +196,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  cursor: default;
   user-select: none;
   -webkit-user-select: none;
 }
-.section-hdr:active { opacity: .7; }
+.section-hdr.collapsible { cursor: pointer; }
+.section-hdr.collapsible:active { opacity: .7; }
 .section-hdr-chevron {
   font-size: 13px;
   color: var(--text-3);
@@ -503,7 +504,7 @@ html, body {
   padding: 12px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-md);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text);
   background: var(--surface-2);
   font-family: var(--font);

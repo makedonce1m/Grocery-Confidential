@@ -329,7 +329,7 @@ function renderItems() {
     state.categories.forEach(cat => {
       if (!grouped[cat.id]?.length) return;
       const collapsed = state.collapsedCategories.has(cat.id);
-      html += `<div class="section-hdr${collapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}">
+      html += `<div class="section-hdr collapsible${collapsed ? ' collapsed' : ''}" data-cat-id="${esc(cat.id)}">
         <span class="section-hdr-name">${esc(cat.name)}</span>
         <span class="section-hdr-chevron">▼</span>
       </div>`;
@@ -403,20 +403,25 @@ function renderGrocery() {
   list.hidden  = false;
   empty.hidden = true;
 
-  // unchecked first, then checked; within each group sort by addedAt
-  const sorted = [...state.groceryList].sort((a, b) => {
-    if (a.checked !== b.checked) return a.checked ? 1 : -1;
-    return a.addedAt - b.addedAt;
+  // Group by category (maintain category order), unchecked first within each group
+  const grouped = {};
+  state.groceryList.forEach(g => {
+    (grouped[g.categoryId] = grouped[g.categoryId] || []).push(g);
   });
+  Object.values(grouped).forEach(group =>
+    group.sort((a, b) => {
+      if (a.checked !== b.checked) return a.checked ? 1 : -1;
+      return a.addedAt - b.addedAt;
+    })
+  );
 
-  list.innerHTML = sorted.map(g => `
+  const renderItem = g => `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
       <div class="g-check${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}">
         ${g.checked ? '✓' : ''}
       </div>
       <div class="g-info">
         <div class="g-name">${esc(g.itemName)}</div>
-        <span class="g-cat">${esc(g.categoryName)}</span>
       </div>
       <div class="qty">
         <button class="qty-btn" data-action="minus" data-gid="${esc(g.id)}" aria-label="Less">−</button>
@@ -424,7 +429,19 @@ function renderGrocery() {
         <button class="qty-btn" data-action="plus"  data-gid="${esc(g.id)}" aria-label="More">+</button>
       </div>
       <button class="g-del" data-action="delete" data-gid="${esc(g.id)}" aria-label="Remove">✕</button>
-    </div>`).join('');
+    </div>`;
+
+  let html = '';
+  state.categories.forEach(cat => {
+    if (!grouped[cat.id]?.length) return;
+    html += `<div class="section-hdr"><span class="section-hdr-name">${esc(cat.name)}</span></div>`;
+    grouped[cat.id].forEach(g => { html += renderItem(g); });
+  });
+  // fallback for any items whose category wasn't found
+  const knownIds = new Set(state.categories.map(c => c.id));
+  state.groceryList.filter(g => !knownIds.has(g.categoryId)).forEach(g => { html += renderItem(g); });
+
+  list.innerHTML = html;
 
   // Single delegated listener
   list.querySelectorAll('[data-action]').forEach(el => {
