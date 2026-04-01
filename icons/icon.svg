@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="115" fill="#2D6A4F"/>
+
+  <!-- Shopping bag body -->
+  <rect x="128" y="210" width="256" height="210" rx="24" fill="none" stroke="white" stroke-width="22" stroke-linejoin="round"/>
+
+  <!-- Bag handles -->
+  <path d="M192 210 C192 148 320 148 320 210" fill="none" stroke="white" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Leaf / check accent -->
+  <path d="M210 320 Q256 268 302 320 Q256 372 210 320Z" fill="#74C69D"/>
+  <line x1="256" y1="268" x2="256" y2="340" stroke="#74C69D" stroke-width="10" stroke-linecap="round"/>
+</svg>
