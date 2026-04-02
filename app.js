@@ -675,6 +675,22 @@ function openRecipePage(id) {
   if (recipe.servings) pills.push(`<span class="recipe-meta-pill">Serves ${recipe.servings}</span>`);
   meta.innerHTML = pills.join('');
 
+  // Ingredients
+  const ingSection = document.getElementById('recipe-page-ingredients-section');
+  const ingEl      = document.getElementById('recipe-page-ingredients');
+  if (recipe.ingredients?.length) {
+    ingSection.hidden = false;
+    ingEl.innerHTML = recipe.ingredients.map(ing => {
+      const amt = ing.amount ? `${ing.amount} ${ing.unit}`.trim() : (ing.unit || '');
+      return `<div class="recipe-ing-row">
+        <span class="recipe-ing-name">${esc(ing.itemName)}</span>
+        ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
+      </div>`;
+    }).join('');
+  } else {
+    ingSection.hidden = true;
+  }
+
   // Instructions
   const instrEl = document.getElementById('recipe-page-instructions');
   const section  = document.getElementById('recipe-page-instructions-section');
