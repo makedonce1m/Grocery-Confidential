@@ -396,6 +396,7 @@ body {
 }
 .qty-popup-unit { font-weight: 400; color: var(--text-3); }
 .qty-popup-already { font-size: 14px; color: var(--text-3); text-align: center; margin-top: -8px; }
+.qty-popup-more-label { font-size: 13px; color: var(--text-3); text-align: center; }
 .qty-popup-input {
   width: 100%;
   font-size: 28px;

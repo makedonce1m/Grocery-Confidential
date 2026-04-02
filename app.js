@@ -192,7 +192,8 @@ function openAddMorePopup(g) {
     <div class="qty-popup" role="dialog">
       <div class="qty-popup-label">${esc(g.itemName)}</div>
       <div class="qty-popup-already">Already on list: <strong>${g.quantity}${unitLabel}</strong></div>
-      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="decimal" min="0.01" step="any" placeholder="Add how much more?">
+      <div class="qty-popup-more-label">Add how much more?</div>
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="numeric" min="0.01" step="any" placeholder="0">
       <div class="qty-popup-actions">
         <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
         <button class="qty-popup-ok"  id="qty-popup-ok">Add</button>
@@ -201,7 +202,7 @@ function openAddMorePopup(g) {
   document.body.appendChild(overlay);
 
   const input = document.getElementById('qty-popup-input');
-  input.focus();
+  setTimeout(() => input.focus(), 50);
 
   const close = () => overlay.remove();
 
@@ -579,6 +580,8 @@ function renderItems() {
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      // Blur search so keyboard dismisses before popup opens
+      if (state.searchQuery) document.getElementById('search-input').blur();
       addToGrocery(btn.dataset.itemId);
       if (state.searchQuery) {
         const si = document.getElementById('search-input');
@@ -587,7 +590,6 @@ function renderItems() {
         state.searchQuery = '';
         sc.classList.remove('visible');
         renderItems();
-        si.focus();
       }
     })
   );
