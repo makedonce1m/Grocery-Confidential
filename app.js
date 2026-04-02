@@ -152,8 +152,13 @@ function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`
 function addToGrocery(itemId) {
   const existing = groceryByItemId(itemId);
   if (existing) {
-    openAddMorePopup(existing);
-    return;
+    if (existing.checked) {
+      // Remove the checked item and fall through to add it fresh
+      state.groceryList = state.groceryList.filter(g => g.id !== existing.id);
+    } else {
+      openAddMorePopup(existing);
+      return;
+    }
   }
   const item = itemById(itemId);
   if (!item) return;
@@ -362,13 +367,14 @@ function addRecipeIngredientsToGrocery(recipeId, checkedIndices, servings) {
     const nameLower = ing.itemName.toLowerCase().trim();
     // Try to match with existing item in database for proper category
     const dbItem = state.items.find(it => it.name.toLowerCase() === nameLower);
-    // Merge if same name + same unit already in list
+    // Merge if same name + same unit already in list (remove first if checked)
     const existing = state.groceryList.find(g =>
       g.itemName.toLowerCase() === nameLower && g.unit === ing.unit
     );
-    if (existing) {
+    if (existing && !existing.checked) {
       existing.quantity = Math.round((existing.quantity + scaledAmt) * 100) / 100;
     } else {
+      if (existing) state.groceryList = state.groceryList.filter(g => g.id !== existing.id);
       state.groceryList.push({
         id:           `g_${uid()}`,
         itemId:       dbItem ? dbItem.id : null,
