@@ -374,15 +374,15 @@ body {
   inset: 0;
   background: rgba(0,0,0,.45);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   z-index: 300;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 24px;
 }
 .qty-popup {
   background: var(--surface);
-  border-radius: 20px 20px 0 0;
-  padding: 24px 24px 32px;
+  border-radius: 20px;
+  padding: 24px 24px 28px;
   width: 100%;
   max-width: 480px;
   display: flex;
