@@ -738,13 +738,23 @@ function closeRecipeFormPage() {
 }
 
 function renderFormIngredients(list) {
-  const UNITS = ['g','kg','ml','L','tsp','tbsp','cup','piece','clove','slice','handful','pinch','sprig',''];
+  const UNITS = ['g','kg','ml','L','tsp','tbsp','cup','fl oz','oz','lb','piece','clove','slice','handful','pinch','sprig',''];
+  const sortedItems = [...state.items].sort((a, b) => a.name.localeCompare(b.name));
+  const itemOpts = sortedItems.map(it =>
+    `<option value="${esc(it.name)}">${esc(it.name)}</option>`
+  ).join('');
+
+  const S = 'padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:16px;font-family:var(--font);outline:none;-webkit-appearance:none;';
+
   const container = document.getElementById('rf-ingredients-list');
   container.innerHTML = list.map((ing, i) => `
     <div class="rf-ingredient-row" data-ing-idx="${i}">
-      <input class="rf-ing-name field input" type="text" placeholder="Ingredient" value="${esc(ing.itemName)}" style="flex:2;min-width:0;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:15px;font-family:var(--font);outline:none;">
-      <input class="rf-ing-amount field input" type="number" min="0" placeholder="Amt" value="${ing.amount || ''}" style="width:60px;padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:15px;font-family:var(--font);outline:none;text-align:right;">
-      <select class="rf-ing-unit" style="width:80px;padding:10px 6px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--font);outline:none;-webkit-appearance:none;">
+      <select class="rf-ing-name" style="flex:2;min-width:0;${S}">
+        <option value="">Ingredient…</option>
+        ${itemOpts.replace(`value="${esc(ing.itemName)}"`, `value="${esc(ing.itemName)}" selected`)}
+      </select>
+      <input class="rf-ing-amount" type="number" min="0" step="any" placeholder="Amt" value="${ing.amount || ''}" style="width:62px;${S}text-align:right;">
+      <select class="rf-ing-unit" style="width:74px;${S}">
         ${UNITS.map(u => `<option value="${u}"${ing.unit===u?' selected':''}>${u||'—'}</option>`).join('')}
       </select>
       <button class="rf-row-del" data-del-ing="${i}" type="button">✕</button>
