@@ -652,11 +652,12 @@ function renderGrocery() {
 
   const renderItem = g => `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
-      <div class="g-info g-toggle" data-action="toggle" data-gid="${esc(g.id)}">
+      <div class="g-main" data-action="edit-qty" data-gid="${esc(g.id)}">
         <div class="g-name">${esc(g.itemName)}</div>
+        ${(g.quantity || g.unit) ? `<div class="g-qty">${g.quantity ? g.quantity : ''}${g.unit ? ' ' + esc(g.unit) : ''}</div>` : ''}
       </div>
-      <button class="qty-tap" data-action="edit-qty" data-gid="${esc(g.id)}" aria-label="Edit quantity">
-        <span class="qty-tap-val">${g.quantity}</span>${g.unit ? `<span class="qty-tap-unit">${esc(g.unit)}</span>` : ''}
+      <button class="g-checkbox${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}" aria-label="Check off">
+        ${g.checked ? '✓' : ''}
       </button>
     </div>`;
 
@@ -689,8 +690,8 @@ function renderGrocery() {
   list.querySelectorAll('[data-action]').forEach(el => {
     el.addEventListener('click', e => {
       const { action, gid } = el.dataset;
-      if (action === 'edit-qty') { e.stopPropagation(); openQtyPopup(gid); }
-      if (action === 'toggle')   toggleChecked(gid);
+      if (action === 'edit-qty') openQtyPopup(gid);
+      if (action === 'toggle')   { e.stopPropagation(); toggleChecked(gid); }
     });
   });
 }
