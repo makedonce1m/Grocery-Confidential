@@ -581,10 +581,27 @@ function renderItems() {
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      // Blur search so keyboard dismisses before popup opens
-      if (state.searchQuery) document.getElementById('search-input').blur();
+      const wasSearching = !!state.searchQuery;
+      const alreadyInList = !!groceryByItemId(btn.dataset.itemId);
+
+      if (wasSearching && alreadyInList) {
+        // Blur first so keyboard dismisses before popup opens
+        document.getElementById('search-input').blur();
+      }
+
       addToGrocery(btn.dataset.itemId);
-      if (state.searchQuery) {
+
+      if (wasSearching && !alreadyInList) {
+        // Item was new — clear search and reopen keyboard to keep adding
+        const si = document.getElementById('search-input');
+        const sc = document.getElementById('search-clear');
+        si.value = '';
+        state.searchQuery = '';
+        sc.classList.remove('visible');
+        renderItems();
+        si.focus();
+      } else if (wasSearching && alreadyInList) {
+        // Popup is opening — just clear the search behind it
         const si = document.getElementById('search-input');
         const sc = document.getElementById('search-clear');
         si.value = '';
