@@ -791,8 +791,21 @@ body {
   flex: 1;
   padding-top: 3px;
 }
-.recipe-page-footer {
-  padding: 16px 16px calc(var(--nav-h) + var(--safe-b) + 16px);
+/* ingredient list on detail page */
+.recipe-ing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.recipe-ing-row:last-child { border-bottom: none; }
+.recipe-ing-name { font-size: 15px; color: var(--text); }
+.recipe-ing-amt  { font-size: 14px; color: var(--text-2); white-space: nowrap; }
+
+.recipe-page-body {
+  padding-bottom: calc(var(--nav-h) + var(--safe-b) + 16px);
 }
 
 /* ── Recipe List Cards ── */
@@ -996,7 +1009,7 @@ body {
   border-radius: var(--r-md);
   background: var(--surface-2);
   color: var(--text);
-  font-size: 15px;
+  font-size: 16px;
   font-family: var(--font);
   outline: none;
   transition: border-color .2s;
