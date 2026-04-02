@@ -611,11 +611,14 @@ function renderRecipes() {
   list.innerHTML = recipes.map(r => {
     const total = (r.prepTime || 0) + (r.cookTime || 0);
     const timeStr = fmtTime(total);
-    const thumb = r.photo
-      ? `<img src="${r.photo}" alt="">`
-      : `<div class="recipe-card-thumb-placeholder">${esc(r.tag || '')}</div>`;
+    const photo = r.photo
+      ? `<img src="${r.photo}" alt="${esc(r.name)}">`
+      : `<div class="recipe-card-photo-placeholder">No photo</div>`;
     return `<div class="recipe-card" data-recipe-id="${esc(r.id)}">
-      <div class="recipe-card-thumb">${thumb}</div>
+      <div class="recipe-card-photo">${photo}</div>
+      <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
+        ${r.favourite ? '♥' : '♡'}
+      </button>
       <div class="recipe-card-info">
         <div class="recipe-card-name">${esc(r.name)}</div>
         <div class="recipe-card-meta">
@@ -623,9 +626,6 @@ function renderRecipes() {
           ${timeStr ? `<span class="recipe-card-time">${timeStr}</span>` : ''}
         </div>
       </div>
-      <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
-        ${r.favourite ? '♥' : '♡'}
-      </button>
     </div>`;
   }).join('');
 
