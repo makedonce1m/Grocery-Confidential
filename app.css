@@ -318,10 +318,13 @@ body {
   border: 1px solid var(--border);
   animation: fadeUp .18s ease-out;
   transition: opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-toggle {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.grocery-item:active { opacity: .7; }
+.g-toggle:active { opacity: .6; }
 .grocery-item.checked { opacity: .45; }
 
 .g-info  { flex: 1; min-width: 0; }

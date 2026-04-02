@@ -650,8 +650,8 @@ function renderGrocery() {
   const checked   = state.groceryList.filter(g =>  g.checked);
 
   const renderItem = g => `
-    <div class="grocery-item${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}">
-      <div class="g-info">
+    <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
+      <div class="g-info g-toggle" data-action="toggle" data-gid="${esc(g.id)}">
         <div class="g-name">${esc(g.itemName)}</div>
       </div>
       <button class="qty-tap" data-action="edit-qty" data-gid="${esc(g.id)}" aria-label="Edit quantity">
