@@ -254,3 +254,44 @@ const DEFAULT_ITEMS = [
   { id: 'oth05', name: 'Dumplings AH Chicken',  categoryId: 'other', unit: '' },
   { id: 'oth06', name: 'Crispy Onions',         categoryId: 'other', unit: '' },
 ];
+
+// ══════════════════════════════════════════════
+//  SEED RECIPES
+//  These load once on first boot, then live in
+//  localStorage like any other recipe.
+// ══════════════════════════════════════════════
+
+const SEED_RECIPES = [
+  {
+    id:           'recipe_adobo_chicken',
+    name:         'Adobo Chicken',
+    tag:          'dinner',
+    photo:        'https://www.recipetineats.com/tachyon/2015/02/Filipino-Chicken-Adobo_7.jpg?resize=900%2C1260&zoom=1',
+    favourite:    false,
+    prepTime:     15,
+    cookTime:     35,
+    servings:     2,
+    createdAt:    1700000000000,
+    ingredients:  [
+      { itemName: 'Chicken',       amount: 400,  unit: 'g'    },
+      { itemName: 'Garlic',        amount: 2,    unit: 'clove' },
+      { itemName: 'Soy Sauce',     amount: 42,   unit: 'ml'   },
+      { itemName: 'White Vinegar', amount: 40,   unit: 'ml'   },
+      { itemName: 'Bay Leaves',    amount: 4,    unit: 'piece'},
+      { itemName: 'Olive Oil',     amount: 1,    unit: 'tbsp' },
+      { itemName: 'Onion',         amount: 0.5,  unit: 'piece'},
+      { itemName: 'Garlic',        amount: 2,    unit: 'clove'},
+      { itemName: 'Water',         amount: 180,  unit: 'ml'   },
+      { itemName: 'Brown Sugar',   amount: 1,    unit: 'tbsp' },
+      { itemName: 'Black Pepper',  amount: 2,    unit: 'tsp'  },
+    ],
+    instructions: [
+      'Marinate the chicken (whenever, or the day before): mix 40ml white vinegar, 42ml soy sauce and 2 minced garlic cloves. Add the chicken and let it marinate.',
+      'Heat a pan over medium-high heat. Cook the chicken on both sides for 2 minutes each until browned. Remove and set aside.',
+      'Add 1 tbsp oil to the same pan. Add 0.5 diced onion and 2 minced garlic cloves. Cook for 1.5 minutes.',
+      'Add 180ml water, 1 tbsp brown sugar, 2 tsp black pepper and the bay leaves. Simmer for 5 minutes.',
+      'Add the chicken back in, smooth side up. Cook for 15 minutes.',
+      'Flip the chicken. Cook for another 10 minutes until the sauce reduces to a thick, glossy glaze.',
+    ],
+  },
+];
