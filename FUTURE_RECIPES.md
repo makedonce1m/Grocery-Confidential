@@ -1,6 +1,6 @@
 # Recipes Feature — Design Notes
 
-## Recipe Categories
+## Recipe Tags (categories)
 - Breakfast
 - Lunch
 - Dinner
@@ -8,68 +8,88 @@
 - Dessert
 - Cocktails
 
-## Decided
-- [x] Scaling — yes, servings field with automatic amount scaling
-- [x] Merging — yes, same ingredient from multiple recipes merges into one grocery entry
-- [x] Instructions — yes, step-by-step, shown below the ingredient list
-- [x] Ingredient list is interactive — each ingredient is tappable to toggle whether it gets added
-- [x] "Add all ingredients" button to add everything at once
+## All Decided
 
-## Recipe Card (list view)
-- Photo thumbnail
-- Name
-- Category
-- Prep / Cook / Total time
-- Favourite star (tappable)
+### Core features
+- [x] Scaling — servings picker, all ingredient amounts scale proportionally
+- [x] Merging — same ingredient from multiple recipes merges into one grocery entry
+- [x] Step-by-step instructions
+- [x] Recipe photo — one image per recipe, tappable to change
+- [x] Favourites — heart button on each recipe card and recipe page
+- [x] Prep time + cook time — separate fields, total auto-calculated
+- [x] Timers — future, auto-detected from instruction text (e.g. "simmer for 20 min" → tappable timer)
+- [x] Creating recipes — manually only for now
+
+### Navigation
+- [x] Recipes gets its own tab in the nav bar (3 tabs total: Items · Recipes · Grocery)
+- [x] The FAB (the big + button in the nav bar) is removed from the nav entirely
+- [x] Items view: + button moves to the header (top right, same row as Edit)
+- [x] Recipes view: + button in the Recipes header to create a new recipe
+
+### Recipe list view
+- [x] Default sort: favourites first, then rest by most recently added
+- [x] Sort button in header cycles through 3 modes:
+  1. Favourites first (default)
+  2. A → Z alphabetical
+  3. Added order (newest first)
+- [x] Show all recipes by default (no filter on open)
+
+### Adding to grocery list
+- [x] One "Add to groceries" button on the recipe page
+- [x] Tapping it opens a bottom sheet popup showing:
+  - Recipe name at top
+  - Servings picker to scale amounts before adding
+  - Full ingredient list with checkboxes (all checked by default)
+  - Each row: checkbox · ingredient name · amount + unit
+  - Tap any ingredient to deselect it
+  - Confirm button at bottom: "Add X ingredients to list"
+
+---
+
+## Recipe Card (in list view)
+- Photo thumbnail (left)
+- Name (bold)
+- Tag (Breakfast / Lunch / etc.)
+- Prep · Cook · Total time
+- Heart icon (tappable favourite toggle)
 
 ## Recipe Page Layout (top to bottom)
-1. Photo (full width)
-2. Recipe name + favourite star
-3. Category | Prep Xmin | Cook Xmin | Total Xmin
-4. Servings picker (−/+ to scale from default)
-5. Ingredients list — each one tappable (checked/unchecked), shows scaled amount + unit
-6. "Add selected to grocery list" button + "Add all" button
-7. Step-by-step instructions (timers auto-detected from text, tappable)
+1. Photo — full width, tap to change
+2. Name (large) + heart icon (top right)
+3. Tag pill | Prep Xmin | Cook Xmin | Total Xmin
+4. Step-by-step instructions — numbered cards, time mentions are tappable (future timer)
+5. "Add to groceries" button — opens bottom sheet (see above)
 
-## Decided (continued)
-- [x] Recipe photo — yes, one image per recipe
-- [x] Timers — future feature, timers triggered from instruction steps (e.g. "simmer for 20 min" becomes a tappable timer)
-- [x] Creating recipes — manually only for now, no URL import
-- [x] Unit conversion — a separate conversions file (see FUTURE_CONVERSIONS.md)
+---
 
-## Decided (continued)
-- [x] Favourites — yes, star/heart button on each recipe, filterable from the recipe list
-- [x] Prep time + cook time — yes, both separate fields (e.g. prep: 15 min, cook: 30 min)
-  - Total time calculated automatically (prep + cook)
-  - Shown on the recipe card in the list view
-
-## Data Structure (rough idea)
+## Data Structure
 ```
 Recipe {
   id
   name
-  category        // breakfast | lunch | dinner | sauces | dessert | cocktails
-  photo           // stored as base64 or a local blob URL
+  tag             // breakfast | lunch | dinner | sauces | dessert | cocktails
+  photo           // base64 or blob URL
   favourite       // boolean
-  prepTime        // minutes
-  cookTime        // minutes
+  prepTime        // minutes (number)
+  cookTime        // minutes (number)
   totalTime       // calculated: prepTime + cookTime
-  servings        // default serving size the amounts are written for
+  servings        // default serving size
   ingredients: [
-    { itemName, amount, unit }   // e.g. "chicken", 400, "g"
+    { itemName, amount, unit }   // e.g. { "Chicken", 400, "g" }
   ]
-  instructions: [ string ]      // ordered steps, timers auto-detected from text
+  instructions: [ string ]      // ordered steps
+  createdAt       // timestamp for "added order" sort
 }
 ```
 
 ## Units to Support
 - Weight: g, kg
 - Volume: ml, L, tsp, tbsp, cup
-- Count: piece, clove, slice, handful
+- Count: piece, clove, slice, handful, pinch, sprig
 - Free text fallback for anything else
 
 ## Grocery List Integration
-When adding from a recipe:
-- Servings picker lets you scale up/down before adding (amounts adjust proportionally)
-- Each selected ingredient becomes a grocery entry with amount + unit pre-filled
-- If the same ingredient already exists on the list, quantities merge into one entry
+- Servings picker in the bottom sheet scales all amounts before adding
+- Each selected ingredient → grocery entry with amount + unit
+- Same ingredient already on the list → quantities merge
+- Units must match to merge (200ml + 100ml = 300ml, but 200ml + 1 cup = listed separately until conversions are built)
