@@ -65,6 +65,7 @@ function loadData() {
   state.categories  = DEFAULT_CATEGORIES.filter(c => !delCats.has(c.id)).map(c => ({ ...c }));
   state.items       = DEFAULT_ITEMS.filter(i => !delItems.has(i.id)).map(i => ({ ...i }));
   state.groceryList = [];
+  state.recipes     = SEED_RECIPES.map(r => ({ ...r })); // overwritten below if localStorage has recipes
 
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -86,6 +87,8 @@ function loadData() {
 
     if (Array.isArray(data.recipes))
       state.recipes = data.recipes;
+    else
+      state.recipes = SEED_RECIPES.map(r => ({ ...r }));
 
   } catch (e) {
     console.warn('Could not load saved data:', e);
