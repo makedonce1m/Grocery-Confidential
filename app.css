@@ -312,33 +312,30 @@ body {
 }
 .grocery-item.checked { opacity: .4; }
 
-.g-main {
+.g-col-qty {
+  width: 64px;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-3);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.g-col-qty:active { opacity: .6; }
+.g-col-name {
   flex: 1;
   min-width: 0;
-  cursor: pointer;
-  padding-right: 12px;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  overflow: hidden;
-}
-.g-main:active { opacity: .6; }
-.g-name {
   font-size: 16px;
   font-weight: 400;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
+  padding-right: 12px;
+  cursor: pointer;
 }
-.grocery-item.checked .g-name { text-decoration: line-through; color: var(--text-3); }
-.g-qty {
-  font-size: 13px;
-  color: var(--text-3);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+.g-col-name:active { opacity: .6; }
+.grocery-item.checked .g-col-name { text-decoration: line-through; color: var(--text-3); }
+.grocery-item.checked .g-col-qty  { color: var(--text-3); }
 
 .g-checkbox {
   width: 30px; height: 30px;

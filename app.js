@@ -646,15 +646,17 @@ function renderGrocery() {
   const unchecked = state.groceryList.filter(g => !g.checked);
   const checked   = state.groceryList.filter(g =>  g.checked);
 
-  const renderItem = g => `
+  const renderItem = g => {
+    const qtyStr = [g.quantity, g.unit].filter(Boolean).join(' ');
+    return `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
-      <div class="g-main" data-action="edit-qty" data-gid="${esc(g.id)}">
-        <span class="g-name">${esc(g.itemName)}</span>${(g.quantity || g.unit) ? `<span class="g-qty">${g.quantity ? g.quantity : ''}${g.unit ? ' ' + esc(g.unit) : ''}</span>` : ''}
-      </div>
+      <div class="g-col-qty" data-action="edit-qty" data-gid="${esc(g.id)}">${esc(qtyStr)}</div>
+      <div class="g-col-name" data-action="edit-qty" data-gid="${esc(g.id)}">${esc(g.itemName)}</div>
       <button class="g-checkbox${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}" aria-label="Check off">
         ${g.checked ? '✓' : ''}
       </button>
     </div>`;
+  };
 
   // Group unchecked items by category
   const grouped = {};
