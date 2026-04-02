@@ -17,7 +17,7 @@
   <div id="app">
 
     <!-- ── ITEMS VIEW ── -->
-    <div id="view-items" class="view active">
+    <div id="view-items" class="view">
       <header class="app-header">
         <div class="header-title">
           <h1>Grocery Confidential</h1>
@@ -39,6 +39,14 @@
         </div>
       </div>
 
+      <div class="items-scroll">
+        <div class="items-list" id="items-list"></div>
+        <div class="empty-state" id="items-empty" hidden>
+          <p>No items found</p>
+          <button class="btn-primary" id="empty-add-btn">Add an item</button>
+        </div>
+      </div>
+
       <div class="cat-bar">
         <div class="cat-select-wrap" id="cat-select-wrap">
           <button class="cat-select-btn" id="cat-select-btn">
@@ -48,18 +56,10 @@
           <div class="cat-dropdown" id="cat-dropdown" hidden></div>
         </div>
       </div>
-
-      <div class="items-scroll">
-        <div class="items-list" id="items-list"></div>
-        <div class="empty-state" id="items-empty" hidden>
-          <p>No items found</p>
-          <button class="btn-primary" id="empty-add-btn">Add an item</button>
-        </div>
-      </div>
     </div>
 
     <!-- ── RECIPES VIEW ── -->
-    <div id="view-recipes" class="view">
+    <div id="view-recipes" class="view active">
       <header class="app-header">
         <div class="header-title">
           <h1>Recipes</h1>
@@ -97,17 +97,7 @@
 
     <!-- ── BOTTOM NAV ── -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" id="nav-items" data-view="items" aria-label="Items">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="8" y1="6"  x2="21" y2="6"/>
-          <line x1="8" y1="12" x2="21" y2="12"/>
-          <line x1="8" y1="18" x2="21" y2="18"/>
-          <circle cx="3" cy="6"  r="1.2" fill="currentColor" stroke="none"/>
-          <circle cx="3" cy="12" r="1.2" fill="currentColor" stroke="none"/>
-          <circle cx="3" cy="18" r="1.2" fill="currentColor" stroke="none"/>
-        </svg>
-      </button>
-      <button class="nav-btn" id="nav-recipes" data-view="recipes" aria-label="Recipes">
+      <button class="nav-btn active" id="nav-recipes" data-view="recipes" aria-label="Recipes">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -120,6 +110,16 @@
           <path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         <span class="nav-badge" id="grocery-badge" hidden>0</span>
+      </button>
+      <button class="nav-btn" id="nav-items" data-view="items" aria-label="Items">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6"  x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <circle cx="3" cy="6"  r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="18" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
       </button>
     </nav>
 

@@ -7,7 +7,7 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:               'items',
+  view:               'recipes',
   categoryFilter:     'all',
   searchQuery:        '',
   editMode:           false,
@@ -127,11 +127,12 @@ function fmtTime(min) {
 
 function filteredItems() {
   let list = state.items;
-  if (state.categoryFilter !== 'all')
-    list = list.filter(i => i.categoryId === state.categoryFilter);
   if (state.searchQuery) {
+    // Search always spans all categories
     const q = state.searchQuery.toLowerCase();
     list = list.filter(i => i.name.toLowerCase().includes(q));
+  } else if (state.categoryFilter !== 'all') {
+    list = list.filter(i => i.categoryId === state.categoryFilter);
   }
   return list;
 }
@@ -1095,7 +1096,7 @@ function init() {
 
   // Initial render
   renderPills();
-  renderItems();
+  renderRecipes();
   updateBadge();
 
   // ── Category dropdown ────────────────────────
