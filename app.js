@@ -724,7 +724,6 @@ function renderRecipes() {
         <div class="recipe-card-meta">
           ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
           <div class="recipe-card-actions">
-            <button class="recipe-card-atg" data-atg-id="${esc(r.id)}" aria-label="Add to groceries">+</button>
             <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
               ${r.favourite ? '♥' : '♡'}
             </button>
@@ -736,7 +735,7 @@ function renderRecipes() {
 
   list.querySelectorAll('.recipe-card').forEach(card =>
     card.addEventListener('click', e => {
-      if (e.target.closest('.recipe-card-fav') || e.target.closest('.recipe-card-atg')) return;
+      if (e.target.closest('.recipe-card-fav')) return;
       openRecipePage(card.dataset.recipeId);
     })
   );
@@ -745,12 +744,6 @@ function renderRecipes() {
       e.stopPropagation();
       toggleRecipeFavourite(btn.dataset.favId);
       renderRecipes();
-    })
-  );
-  list.querySelectorAll('.recipe-card-atg').forEach(btn =>
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      openAddToGrocerySheet(btn.dataset.atgId);
     })
   );
 }
@@ -1136,12 +1129,7 @@ function init() {
     openModal('modal-add-item');
   });
 
-  // ── Empty state buttons ───────────────────────
-  document.getElementById('empty-add-btn').addEventListener('click', () => {
-    syncCategorySelect();
-    openModal('modal-add-item');
-  });
-  document.getElementById('go-browse-btn').addEventListener('click', () => switchView('items'));
+  document.getElementById('go-browse-btn')?.addEventListener('click', () => switchView('items'));
 
   // ── Edit mode ─────────────────────────────────
   document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
