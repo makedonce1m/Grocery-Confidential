@@ -395,14 +395,15 @@ body {
   text-align: center;
 }
 .qty-popup-unit { font-weight: 400; color: var(--text-3); }
+.qty-popup-already { font-size: 14px; color: var(--text-3); text-align: center; margin-top: -8px; }
 .qty-popup-input {
   width: 100%;
   font-size: 28px;
   font-weight: 700;
   text-align: center;
   border: 2px solid var(--border);
-  border-radius: var(--r);
-  padding: 10px;
+  border-radius: var(--r-full);
+  padding: 10px 20px;
   background: var(--surface-2);
   color: var(--text);
   font-family: var(--font);
@@ -417,7 +418,7 @@ body {
 .qty-popup-del {
   flex: 1;
   padding: 12px;
-  border-radius: var(--r);
+  border-radius: var(--r-full);
   border: 1.5px solid var(--danger);
   background: transparent;
   color: var(--danger);
@@ -429,7 +430,7 @@ body {
 .qty-popup-ok {
   flex: 2;
   padding: 12px;
-  border-radius: var(--r);
+  border-radius: var(--r-full);
   border: none;
   background: var(--green);
   color: #fff;
