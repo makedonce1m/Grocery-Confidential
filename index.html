@@ -22,12 +22,15 @@
         <div class="header-title">
           <h1>Grocery Confidential</h1>
         </div>
-        <button class="header-btn" id="edit-mode-btn">Edit</button>
+        <div class="header-actions">
+          <button class="header-btn" id="edit-mode-btn">Edit</button>
+          <button class="header-btn header-btn-icon" id="fab-add-item" aria-label="Add item">+</button>
+        </div>
       </header>
 
       <div class="search-wrap">
         <div class="search-bar">
-          <svg class="search-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="none">
             <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.8"/>
             <path d="M13 13L17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
@@ -53,7 +56,26 @@
           <button class="btn-primary" id="empty-add-btn">Add an item</button>
         </div>
       </div>
+    </div>
 
+    <!-- ── RECIPES VIEW ── -->
+    <div id="view-recipes" class="view">
+      <header class="app-header">
+        <div class="header-title">
+          <h1>Recipes</h1>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" id="recipe-sort-btn">Sort</button>
+          <button class="header-btn header-btn-icon" id="add-recipe-btn" aria-label="Add recipe">+</button>
+        </div>
+      </header>
+      <div class="items-scroll">
+        <div class="recipe-list" id="recipe-list"></div>
+        <div class="empty-state" id="recipes-empty" hidden>
+          <p>No recipes yet</p>
+          <button class="btn-primary" id="empty-add-recipe-btn">Add your first recipe</button>
+        </div>
+      </div>
     </div>
 
     <!-- ── GROCERY LIST VIEW ── -->
@@ -64,7 +86,6 @@
         </div>
         <button class="header-btn" id="clear-completed-btn">Clear done</button>
       </header>
-
       <div class="items-scroll">
         <div class="grocery-list" id="grocery-list"></div>
         <div class="empty-state" id="grocery-empty" hidden>
@@ -86,7 +107,12 @@
           <circle cx="3" cy="18" r="1.2" fill="currentColor" stroke="none"/>
         </svg>
       </button>
-      <button class="nav-fab" id="fab-add-item" aria-label="Add item">+</button>
+      <button class="nav-btn" id="nav-recipes" data-view="recipes" aria-label="Recipes">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </button>
       <button class="nav-btn" id="nav-grocery" data-view="grocery" aria-label="Grocery list">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -96,6 +122,132 @@
         <span class="nav-badge" id="grocery-badge" hidden>0</span>
       </button>
     </nav>
+
+    <!-- ══ RECIPE DETAIL SLIDE PAGE ══ -->
+    <div id="recipe-page" class="slide-page">
+      <header class="app-header">
+        <button class="header-btn" id="recipe-back-btn">‹ Back</button>
+        <div class="header-actions">
+          <button class="header-btn" id="recipe-delete-btn">Delete</button>
+          <button class="header-btn" id="recipe-edit-btn">Edit</button>
+        </div>
+      </header>
+      <div class="recipe-page-scroll" id="recipe-page-scroll">
+        <div class="recipe-photo-wrap" id="recipe-page-photo-wrap">
+          <img class="recipe-photo-img" id="recipe-page-photo" alt="">
+          <div class="recipe-photo-placeholder" id="recipe-page-no-photo">No photo</div>
+        </div>
+        <div class="recipe-page-body">
+          <div class="recipe-page-title-row">
+            <h2 id="recipe-page-name"></h2>
+            <button class="fav-btn" id="recipe-page-fav" aria-label="Toggle favourite">♡</button>
+          </div>
+          <div class="recipe-page-meta" id="recipe-page-meta"></div>
+          <div class="recipe-page-section" id="recipe-page-instructions-section">
+            <h3 class="recipe-section-title">Instructions</h3>
+            <div id="recipe-page-instructions"></div>
+          </div>
+        </div>
+        <div class="recipe-page-footer">
+          <button class="btn-primary" id="recipe-add-grocery-btn">Add to groceries</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RECIPE FORM SLIDE PAGE ══ -->
+    <div id="recipe-form-page" class="slide-page">
+      <header class="app-header">
+        <button class="header-btn" id="recipe-form-cancel">Cancel</button>
+        <h1 id="recipe-form-title">New Recipe</h1>
+        <button class="header-btn" id="recipe-form-save">Save</button>
+      </header>
+      <div class="recipe-form-scroll">
+        <!-- Photo -->
+        <div class="recipe-form-photo-wrap" id="recipe-form-photo-wrap">
+          <input type="file" id="recipe-form-photo-input" accept="image/*" hidden>
+          <img class="recipe-photo-img" id="recipe-form-photo-preview" alt="" hidden>
+          <button class="recipe-form-photo-btn" id="recipe-form-photo-btn">+ Add Photo</button>
+        </div>
+
+        <div class="recipe-form-body">
+          <!-- Name -->
+          <div class="field">
+            <label for="rf-name">Recipe Name <span class="req">*</span></label>
+            <input type="text" id="rf-name" placeholder="e.g. Spaghetti Bolognese">
+          </div>
+
+          <!-- Tag -->
+          <div class="field">
+            <label for="rf-tag">Tag</label>
+            <div class="select-wrap">
+              <select id="rf-tag">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner" selected>Dinner</option>
+                <option value="sauces">Sauces</option>
+                <option value="dessert">Dessert</option>
+                <option value="cocktails">Cocktails</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Times + Servings -->
+          <div class="recipe-form-row">
+            <div class="field">
+              <label for="rf-prep">Prep (min)</label>
+              <input type="number" id="rf-prep" min="0" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="rf-cook">Cook (min)</label>
+              <input type="number" id="rf-cook" min="0" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="rf-servings">Servings</label>
+              <input type="number" id="rf-servings" min="1" placeholder="4">
+            </div>
+          </div>
+
+          <!-- Ingredients -->
+          <div class="field">
+            <label>Ingredients</label>
+            <div id="rf-ingredients-list"></div>
+            <button class="btn-secondary" id="rf-add-ingredient-btn" type="button">+ Add ingredient</button>
+          </div>
+
+          <!-- Instructions -->
+          <div class="field">
+            <label>Instructions</label>
+            <div id="rf-instructions-list"></div>
+            <button class="btn-secondary" id="rf-add-step-btn" type="button">+ Add step</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Add to Groceries ── -->
+    <div class="modal-overlay" id="modal-add-to-grocery" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="atg-recipe-name">Add to groceries</h2>
+          <button class="modal-close" data-modal="modal-add-to-grocery">✕</button>
+        </div>
+        <div class="modal-body" style="padding-bottom:0">
+          <div class="atg-servings-row">
+            <span class="atg-servings-label">Servings</span>
+            <div class="qty">
+              <button class="qty-btn" id="atg-servings-minus" aria-label="Less">−</button>
+              <span class="qty-val" id="atg-servings-val">4</span>
+              <button class="qty-btn" id="atg-servings-plus" aria-label="More">+</button>
+            </div>
+          </div>
+          <div id="atg-ingredients-list"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" data-modal="modal-add-to-grocery">Cancel</button>
+          <button class="btn-primary" id="atg-confirm-btn">Add to list</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ── MODAL: Add Item ── -->
     <div class="modal-overlay" id="modal-add-item" hidden>
@@ -160,6 +312,23 @@
         <div class="modal-footer">
           <button class="btn-secondary" data-modal="modal-confirm-del-cat">Cancel</button>
           <button class="btn-danger" id="confirm-del-cat-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL: Confirm Delete Recipe ── -->
+    <div class="modal-overlay" id="modal-confirm-del-recipe" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Delete Recipe</h2>
+          <button class="modal-close" data-modal="modal-confirm-del-recipe">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="confirm-msg">Are you sure you want to delete this recipe?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" data-modal="modal-confirm-del-recipe">Cancel</button>
+          <button class="btn-danger" id="confirm-del-recipe-btn">Delete</button>
         </div>
       </div>
     </div>
