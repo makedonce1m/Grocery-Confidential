@@ -653,8 +653,7 @@ function renderGrocery() {
   const renderItem = g => `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
       <div class="g-main" data-action="edit-qty" data-gid="${esc(g.id)}">
-        <div class="g-name">${esc(g.itemName)}</div>
-        ${(g.quantity || g.unit) ? `<div class="g-qty">${g.quantity ? g.quantity : ''}${g.unit ? ' ' + esc(g.unit) : ''}</div>` : ''}
+        <span class="g-name">${esc(g.itemName)}</span>${(g.quantity || g.unit) ? `<span class="g-qty">${g.quantity ? g.quantity : ''}${g.unit ? ' ' + esc(g.unit) : ''}</span>` : ''}
       </div>
       <button class="g-checkbox${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}" aria-label="Check off">
         ${g.checked ? '✓' : ''}
