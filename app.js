@@ -721,7 +721,6 @@ function renderRecipes() {
         <div class="recipe-card-name">${esc(r.name)}</div>
         <div class="recipe-card-meta">
           ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
-          ${timeStr ? `<span class="recipe-card-time">${timeStr}</span>` : ''}
           <div class="recipe-card-actions">
             <button class="recipe-card-atg" data-atg-id="${esc(r.id)}" aria-label="Add to groceries">+</button>
             <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
