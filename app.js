@@ -761,14 +761,15 @@ function openRecipePage(id) {
   // Photo
   const photoEl = document.getElementById('recipe-page-photo');
   const noPhoto  = document.getElementById('recipe-page-no-photo');
+  const photoWrap = document.getElementById('recipe-page-photo-wrap');
   if (recipe.photo) {
     photoEl.src = recipe.photo;
     photoEl.hidden = false;
-    noPhoto.hidden = true;
+    photoWrap.hidden = false;
   } else {
-    photoEl.hidden = true;
-    noPhoto.hidden = false;
+    photoWrap.hidden = true;
   }
+  noPhoto.hidden = true;
 
   // Title + fav
   document.getElementById('recipe-page-name').textContent = recipe.name;
