@@ -8,13 +8,26 @@
 - Dessert
 - Cocktails
 
-## Open Questions / To Discuss
+## Decided
+- [x] Scaling — yes, servings field with automatic amount scaling
+- [x] Merging — yes, same ingredient from multiple recipes merges into one grocery entry
+- [x] Instructions — yes, step-by-step, shown below the ingredient list
+- [x] Ingredient list is interactive — each ingredient is tappable to toggle whether it gets added
+- [x] "Add all ingredients" button to add everything at once
+
+## Recipe Page Layout (top to bottom)
+1. Recipe name + category + servings picker (e.g. −/+ to adjust from default)
+2. Ingredients list — each one tappable (checked/unchecked), shows amount + unit
+3. "Add selected to grocery list" button
+4. "Add all ingredients" button
+5. Step-by-step instructions
+
+## Open Questions / Still To Discuss
 - [ ] Should recipes have a photo or just text?
-- [ ] Do we want a "servings" field so quantities scale? (e.g. recipe is for 4, you're cooking for 2)
-- [ ] Should adding a recipe to the grocery list merge duplicates? (two recipes both need garlic → combine into one grocery entry)
-- [ ] Do we want a "favourites" or star system for recipes?
+- [ ] Do we want a favourites / star system for recipes?
 - [ ] Should there be a prep time / cook time field?
-- [ ] Step-by-step instructions, or just the ingredient list?
+- [ ] Who creates recipes — only you manually, or do we want an import (e.g. paste a URL)?
+- [ ] When merging duplicate ingredients, if units differ (e.g. "200ml" + "1 cup") — convert automatically or just list both?
 
 ## Data Structure (rough idea)
 ```
@@ -22,11 +35,11 @@ Recipe {
   id
   name
   category        // breakfast | lunch | dinner | sauces | dessert | cocktails
-  servings        // default serving size
+  servings        // default serving size the amounts are written for
   ingredients: [
     { itemName, amount, unit }   // e.g. "chicken", 400, "g"
   ]
-  instructions    // optional steps
+  instructions: [ string ]      // ordered steps
 }
 ```
 
@@ -37,7 +50,7 @@ Recipe {
 - Free text fallback for anything else
 
 ## Grocery List Integration
-When a recipe is added to the grocery list:
-- Each ingredient becomes a grocery entry with its amount + unit pre-filled
-- If the same ingredient already exists on the list, quantities should merge
-- Scaling: if recipe serves 4 but you pick "2 servings", amounts halve automatically
+When adding from a recipe:
+- Servings picker lets you scale up/down before adding (amounts adjust proportionally)
+- Each selected ingredient becomes a grocery entry with amount + unit pre-filled
+- If the same ingredient already exists on the list, quantities merge into one entry
