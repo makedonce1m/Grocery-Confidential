@@ -650,10 +650,7 @@ function renderGrocery() {
   const checked   = state.groceryList.filter(g =>  g.checked);
 
   const renderItem = g => `
-    <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
-      <div class="g-check${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}">
-        ${g.checked ? '✓' : ''}
-      </div>
+    <div class="grocery-item${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}">
       <div class="g-info">
         <div class="g-name">${esc(g.itemName)}</div>
       </div>
@@ -691,8 +688,8 @@ function renderGrocery() {
   list.querySelectorAll('[data-action]').forEach(el => {
     el.addEventListener('click', e => {
       const { action, gid } = el.dataset;
+      if (action === 'edit-qty') { e.stopPropagation(); openQtyPopup(gid); }
       if (action === 'toggle')   toggleChecked(gid);
-      if (action === 'edit-qty') openQtyPopup(gid);
     });
   });
 }
