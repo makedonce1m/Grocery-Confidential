@@ -149,14 +149,14 @@ function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`
 //  ACTIONS
 // ══════════════════════════════════════════════
 
-function addToGrocery(itemId) {
+function addToGrocery(itemId, delayPopupFocus = false) {
   const existing = groceryByItemId(itemId);
   if (existing) {
     if (existing.checked) {
       // Remove the checked item and fall through to add it fresh
       state.groceryList = state.groceryList.filter(g => g.id !== existing.id);
     } else {
-      openAddMorePopup(existing);
+      openAddMorePopup(existing, delayPopupFocus);
       return;
     }
   }
@@ -181,7 +181,7 @@ function addToGrocery(itemId) {
   renderItems();
 }
 
-function openAddMorePopup(g) {
+function openAddMorePopup(g, delayFocus = false) {
   document.getElementById('qty-popup-overlay')?.remove();
 
   const unitLabel = g.unit ? ` ${g.unit}` : '';
@@ -202,7 +202,8 @@ function openAddMorePopup(g) {
   document.body.appendChild(overlay);
 
   const input = document.getElementById('qty-popup-input');
-  setTimeout(() => input.focus(), 50);
+  if (delayFocus) setTimeout(() => input.focus(), 80);
+  else input.focus();
 
   const close = () => overlay.remove();
 
@@ -589,7 +590,7 @@ function renderItems() {
         document.getElementById('search-input').blur();
       }
 
-      addToGrocery(btn.dataset.itemId);
+      addToGrocery(btn.dataset.itemId, wasSearching && alreadyInList);
 
       if (wasSearching && !alreadyInList) {
         // Item was new — clear search and reopen keyboard to keep adding
