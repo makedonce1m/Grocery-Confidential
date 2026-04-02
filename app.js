@@ -149,14 +149,14 @@ function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`
 //  ACTIONS
 // ══════════════════════════════════════════════
 
-function addToGrocery(itemId) {
+function addToGrocery(itemId, delayPopupFocus = false) {
   const existing = groceryByItemId(itemId);
   if (existing) {
     if (existing.checked) {
       // Remove the checked item and fall through to add it fresh
       state.groceryList = state.groceryList.filter(g => g.id !== existing.id);
     } else {
-      openAddMorePopup(existing);
+      openAddMorePopup(existing, delayPopupFocus);
       return;
     }
   }
@@ -181,7 +181,7 @@ function addToGrocery(itemId) {
   renderItems();
 }
 
-function openAddMorePopup(g) {
+function openAddMorePopup(g, delayFocus = false) {
   document.getElementById('qty-popup-overlay')?.remove();
 
   const unitLabel = g.unit ? ` ${g.unit}` : '';
@@ -202,7 +202,8 @@ function openAddMorePopup(g) {
   document.body.appendChild(overlay);
 
   const input = document.getElementById('qty-popup-input');
-  setTimeout(() => input.focus(), 50);
+  if (delayFocus) setTimeout(() => input.focus(), 80);
+  else input.focus();
 
   const close = () => overlay.remove();
 
@@ -521,6 +522,7 @@ function openCatDropdown() {
       closeCatDropdown();
       renderPills();
       renderItems();
+      document.getElementById('view-items').scrollTop = 0;
     })
   );
 
@@ -580,10 +582,27 @@ function renderItems() {
   list.querySelectorAll('.add-btn').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      // Blur search so keyboard dismisses before popup opens
-      if (state.searchQuery) document.getElementById('search-input').blur();
-      addToGrocery(btn.dataset.itemId);
-      if (state.searchQuery) {
+      const wasSearching = !!state.searchQuery;
+      const alreadyInList = !!groceryByItemId(btn.dataset.itemId);
+
+      if (wasSearching && alreadyInList) {
+        // Blur first so keyboard dismisses before popup opens
+        document.getElementById('search-input').blur();
+      }
+
+      addToGrocery(btn.dataset.itemId, wasSearching && alreadyInList);
+
+      if (wasSearching && !alreadyInList) {
+        // Item was new — clear search and reopen keyboard to keep adding
+        const si = document.getElementById('search-input');
+        const sc = document.getElementById('search-clear');
+        si.value = '';
+        state.searchQuery = '';
+        sc.classList.remove('visible');
+        renderItems();
+        si.focus();
+      } else if (wasSearching && alreadyInList) {
+        // Popup is opening — just clear the search behind it
         const si = document.getElementById('search-input');
         const sc = document.getElementById('search-clear');
         si.value = '';
@@ -1016,7 +1035,9 @@ function updateBadge() {
 function switchView(view) {
   state.view = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${view}`).classList.add('active');
+  const el = document.getElementById(`view-${view}`);
+  el.classList.add('active');
+  el.scrollTop = 0;
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`nav-${view}`).classList.add('active');
   if (view === 'grocery') renderGrocery();
