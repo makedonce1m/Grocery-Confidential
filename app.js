@@ -190,9 +190,51 @@ function adjustQty(groceryId, delta) {
   if (!g) return;
   g.quantity = Math.max(1, g.quantity + delta);
   saveData();
-  // only re-render qty value to avoid full repaint jank
   const card = document.querySelector(`.grocery-item[data-gid="${groceryId}"]`);
-  if (card) card.querySelector('.qty-val').textContent = g.quantity;
+  if (card) card.querySelector('.qty-tap-val').textContent = g.quantity;
+}
+
+function openQtyPopup(groceryId) {
+  const g = groceryById(groceryId);
+  if (!g) return;
+
+  // Remove any existing popup
+  document.getElementById('qty-popup-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'qty-popup-overlay';
+  overlay.className = 'qty-popup-overlay';
+  overlay.innerHTML = `
+    <div class="qty-popup" role="dialog" aria-label="Set quantity">
+      <div class="qty-popup-label">${esc(g.itemName)}${g.unit ? ` <span class="qty-popup-unit">(${esc(g.unit)})</span>` : ''}</div>
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="decimal" min="0.01" step="any" value="${g.quantity}">
+      <div class="qty-popup-actions">
+        <button class="qty-popup-del" id="qty-popup-del">Remove item</button>
+        <button class="qty-popup-ok"  id="qty-popup-ok">Done</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('qty-popup-input');
+  input.focus();
+  input.select();
+
+  const close = () => overlay.remove();
+
+  const confirm = () => {
+    const val = parseFloat(input.value);
+    if (!isNaN(val) && val > 0) {
+      g.quantity = Math.round(val * 100) / 100;
+      saveData();
+      renderGrocery();
+    }
+    close();
+  };
+
+  document.getElementById('qty-popup-ok').addEventListener('click', confirm);
+  document.getElementById('qty-popup-del').addEventListener('click', () => { close(); removeFromGrocery(groceryId); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') close(); });
 }
 
 function toggleChecked(groceryId) {
@@ -490,6 +532,15 @@ function renderItems() {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       addToGrocery(btn.dataset.itemId);
+      if (state.searchQuery) {
+        const si = document.getElementById('search-input');
+        const sc = document.getElementById('search-clear');
+        si.value = '';
+        state.searchQuery = '';
+        sc.classList.remove('visible');
+        renderItems();
+        si.focus();
+      }
     })
   );
 
@@ -545,12 +596,9 @@ function renderGrocery() {
       <div class="g-info">
         <div class="g-name">${esc(g.itemName)}</div>
       </div>
-      <div class="qty">
-        <button class="qty-btn" data-action="minus" data-gid="${esc(g.id)}" aria-label="Less">−</button>
-        <span class="qty-val">${g.quantity}</span>
-        <button class="qty-btn" data-action="plus"  data-gid="${esc(g.id)}" aria-label="More">+</button>
-      </div>
-      <button class="g-del" data-action="delete" data-gid="${esc(g.id)}" aria-label="Remove">✕</button>
+      <button class="qty-tap" data-action="edit-qty" data-gid="${esc(g.id)}" aria-label="Edit quantity">
+        <span class="qty-tap-val">${g.quantity}</span>${g.unit ? `<span class="qty-tap-unit">${esc(g.unit)}</span>` : ''}
+      </button>
     </div>`;
 
   // Group unchecked items by category
@@ -582,10 +630,8 @@ function renderGrocery() {
   list.querySelectorAll('[data-action]').forEach(el => {
     el.addEventListener('click', e => {
       const { action, gid } = el.dataset;
-      if (action === 'toggle') toggleChecked(gid);
-      if (action === 'minus')  adjustQty(gid, -1);
-      if (action === 'plus')   adjustQty(gid, +1);
-      if (action === 'delete') removeFromGrocery(gid);
+      if (action === 'toggle')   toggleChecked(gid);
+      if (action === 'edit-qty') openQtyPopup(gid);
     });
   });
 }
