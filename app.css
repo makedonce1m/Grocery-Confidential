@@ -223,7 +223,6 @@ body {
   padding-bottom: calc(var(--nav-h) + var(--safe-b) + 76px);
 }
 
-.items-list  { display: flex; flex-direction: column; gap: 8px; }
 .grocery-list{ display: flex; flex-direction: column; }
 
 /* section header (group by category) */
@@ -237,37 +236,29 @@ body {
 }
 
 /* ── Item Card ── */
+.items-list { display: flex; flex-direction: column; }
 .item-card {
-  background: var(--surface);
-  border-radius: var(--r-md);
-  padding: 12px 13px;
   display: flex;
   align-items: center;
-  gap: 11px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
-  animation: fadeUp .18s ease-out;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
 }
-.item-emoji { font-size: 22px; width: 34px; text-align: center; flex-shrink: 0; }
-.item-info  { flex: 1; min-width: 0; }
-.item-name  { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.item-meta  { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
-.item-tag   {
-  font-size: 11px; font-weight: 600;
-  color: var(--green);
-  background: rgba(245,158,11,.15);
-  padding: 2px 8px;
-  border-radius: var(--r-full);
+.item-card:first-of-type { border-top: 1px solid var(--border); }
+.item-info  {
+  flex: 1; min-width: 0;
+  display: flex; align-items: baseline; gap: 6px;
+  overflow: hidden;
 }
-.item-unit  { font-size: 11px; color: var(--text-3); }
+.item-name  { font-size: 16px; font-weight: 400; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
+.item-unit  { font-size: 13px; color: var(--text-3); white-space: nowrap; flex-shrink: 0; }
 
 .add-btn {
-  width: 36px; height: 36px;
-  border-radius: var(--r-full);
+  width: 30px; height: 30px;
+  border-radius: 8px;
   background: var(--green);
   color: #fff;
   border: none;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 300;
   display: flex;
   align-items: center;
@@ -280,8 +271,8 @@ body {
 }
 .add-btn:active { transform: scale(.86); background: var(--green-dk); }
 .add-btn.in-list {
-  background: var(--accent);
-  font-size: 16px;
+  background: var(--green);
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -349,8 +340,8 @@ body {
 }
 
 .g-checkbox {
-  width: 24px; height: 24px;
-  border-radius: 6px;
+  width: 30px; height: 30px;
+  border-radius: 8px;
   border: 2px solid var(--border);
   background: transparent;
   flex-shrink: 0;
@@ -935,14 +926,14 @@ body {
 }
 .recipe-card-fav,
 .recipe-card-atg {
-  width: 26px; height: 26px;
+  width: 34px; height: 34px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1.5px solid var(--border);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--text-3);
-  font-size: 12px;
+  font-size: 15px;
   transition: transform .15s;
 }
 .recipe-card-fav:active,
