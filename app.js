@@ -7,7 +7,7 @@
 // ══════════════════════════════════════════════
 
 const state = {
-  view:               'items',
+  view:               'recipes',
   categoryFilter:     'all',
   searchQuery:        '',
   editMode:           false,
@@ -127,11 +127,12 @@ function fmtTime(min) {
 
 function filteredItems() {
   let list = state.items;
-  if (state.categoryFilter !== 'all')
-    list = list.filter(i => i.categoryId === state.categoryFilter);
   if (state.searchQuery) {
+    // Search always spans all categories
     const q = state.searchQuery.toLowerCase();
     list = list.filter(i => i.name.toLowerCase().includes(q));
+  } else if (state.categoryFilter !== 'all') {
+    list = list.filter(i => i.categoryId === state.categoryFilter);
   }
   return list;
 }
@@ -193,7 +194,7 @@ function openAddMorePopup(g) {
       <div class="qty-popup-label">${esc(g.itemName)}</div>
       <div class="qty-popup-already">Already on list: <strong>${g.quantity}${unitLabel}</strong></div>
       <div class="qty-popup-more-label">Add how much more?</div>
-      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="numeric" min="0.01" step="any" placeholder="0">
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="numeric" min="0.01" step="any" placeholder="">
       <div class="qty-popup-actions">
         <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
         <button class="qty-popup-ok"  id="qty-popup-ok">Add</button>
@@ -650,8 +651,8 @@ function renderGrocery() {
   const checked   = state.groceryList.filter(g =>  g.checked);
 
   const renderItem = g => `
-    <div class="grocery-item${g.checked ? ' checked' : ''}" data-action="toggle" data-gid="${esc(g.id)}">
-      <div class="g-info">
+    <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
+      <div class="g-info g-toggle" data-action="toggle" data-gid="${esc(g.id)}">
         <div class="g-name">${esc(g.itemName)}</div>
       </div>
       <button class="qty-tap" data-action="edit-qty" data-gid="${esc(g.id)}" aria-label="Edit quantity">
@@ -720,14 +721,17 @@ function renderRecipes() {
       : `<div class="recipe-card-photo-placeholder">No photo</div>`;
     return `<div class="recipe-card" data-recipe-id="${esc(r.id)}">
       <div class="recipe-card-photo">${photo}</div>
-      <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
-        ${r.favourite ? '♥' : '♡'}
-      </button>
       <div class="recipe-card-info">
         <div class="recipe-card-name">${esc(r.name)}</div>
         <div class="recipe-card-meta">
           ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
           ${timeStr ? `<span class="recipe-card-time">${timeStr}</span>` : ''}
+        </div>
+        <div class="recipe-card-actions">
+          <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
+            ${r.favourite ? '♥' : '♡'}
+          </button>
+          <button class="recipe-card-atg" data-atg-id="${esc(r.id)}" aria-label="Add to groceries">🛒</button>
         </div>
       </div>
     </div>`;
@@ -735,7 +739,7 @@ function renderRecipes() {
 
   list.querySelectorAll('.recipe-card').forEach(card =>
     card.addEventListener('click', e => {
-      if (e.target.closest('.recipe-card-fav')) return;
+      if (e.target.closest('.recipe-card-fav') || e.target.closest('.recipe-card-atg')) return;
       openRecipePage(card.dataset.recipeId);
     })
   );
@@ -744,6 +748,12 @@ function renderRecipes() {
       e.stopPropagation();
       toggleRecipeFavourite(btn.dataset.favId);
       renderRecipes();
+    })
+  );
+  list.querySelectorAll('.recipe-card-atg').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openAddToGrocerySheet(btn.dataset.atgId);
     })
   );
 }
@@ -1086,7 +1096,7 @@ function init() {
 
   // Initial render
   renderPills();
-  renderItems();
+  renderRecipes();
   updateBadge();
 
   // ── Category dropdown ────────────────────────
