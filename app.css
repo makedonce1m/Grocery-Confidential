@@ -228,7 +228,7 @@ body {
 
 /* section header (group by category) */
 .section-hdr {
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--green);
   letter-spacing: .08em;
@@ -325,6 +325,10 @@ body {
   min-width: 0;
   cursor: pointer;
   padding-right: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
 }
 .g-main:active { opacity: .6; }
 .g-name {
@@ -334,12 +338,14 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 .grocery-item.checked .g-name { text-decoration: line-through; color: var(--text-3); }
 .g-qty {
   font-size: 13px;
   color: var(--text-3);
-  margin-top: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .g-checkbox {
