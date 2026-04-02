@@ -3,19 +3,19 @@
 
 /* ── Tokens ── */
 :root {
-  --green:       #52B788;
-  --green-lt:    #74C69D;
-  --green-dk:    #2D6A4F;
-  --accent:      #74C69D;
-  --bg:          #111111;
-  --surface:     #1C1C1E;
-  --surface-2:   #2C2C2E;
+  --green:       #F59E0B;
+  --green-lt:    #FCD34D;
+  --green-dk:    #B45309;
+  --accent:      #FCD34D;
+  --bg:          #000000;
+  --surface:     #111111;
+  --surface-2:   #1C1C1C;
   --text:        #F2F2F7;
   --text-2:      #AEAEB2;
   --text-3:      #636366;
-  --border:      #38383A;
+  --border:      #2C2C2C;
   --danger:      #FF453A;
-  --ok:          #30D158;
+  --ok:          #F59E0B;
   --r-sm:        8px;
   --r-md:        14px;
   --r-lg:        22px;
@@ -253,7 +253,7 @@ body {
 .item-tag   {
   font-size: 11px; font-weight: 600;
   color: var(--green);
-  background: rgba(82,183,136,.15);
+  background: rgba(245,158,11,.15);
   padding: 2px 8px;
   border-radius: var(--r-full);
 }
@@ -332,7 +332,7 @@ body {
   margin-top: 3px;
   font-size: 11px; font-weight: 600;
   color: var(--green);
-  background: rgba(82,183,136,.15);
+  background: rgba(245,158,11,.15);
   padding: 2px 8px;
   border-radius: var(--r-full);
 }
@@ -350,7 +350,7 @@ body {
   font-family: var(--font);
   transition: all .13s;
 }
-.qty-tap:active { border-color: var(--green); background: rgba(82,183,136,.12); }
+.qty-tap:active { border-color: var(--green); background: rgba(245,158,11,.12); }
 .qty-tap-val { font-size: 15px; font-weight: 700; color: var(--text); }
 .qty-tap-unit { font-size: 12px; color: var(--text-3); }
 
@@ -793,7 +793,7 @@ body {
   color: var(--text-2);
   border: 1px solid var(--border);
 }
-.recipe-meta-pill.tag { background: rgba(82,183,136,.15); color: var(--green); border-color: transparent; }
+.recipe-meta-pill.tag { background: rgba(245,158,11,.15); color: var(--green); border-color: transparent; }
 
 .recipe-page-section { margin-bottom: 24px; }
 .recipe-section-title {
