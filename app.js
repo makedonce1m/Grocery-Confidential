@@ -720,14 +720,17 @@ function renderRecipes() {
       : `<div class="recipe-card-photo-placeholder">No photo</div>`;
     return `<div class="recipe-card" data-recipe-id="${esc(r.id)}">
       <div class="recipe-card-photo">${photo}</div>
-      <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
-        ${r.favourite ? '♥' : '♡'}
-      </button>
       <div class="recipe-card-info">
         <div class="recipe-card-name">${esc(r.name)}</div>
         <div class="recipe-card-meta">
           ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
           ${timeStr ? `<span class="recipe-card-time">${timeStr}</span>` : ''}
+        </div>
+        <div class="recipe-card-actions">
+          <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
+            ${r.favourite ? '♥' : '♡'}
+          </button>
+          <button class="recipe-card-atg" data-atg-id="${esc(r.id)}" aria-label="Add to groceries">🛒</button>
         </div>
       </div>
     </div>`;
@@ -735,7 +738,7 @@ function renderRecipes() {
 
   list.querySelectorAll('.recipe-card').forEach(card =>
     card.addEventListener('click', e => {
-      if (e.target.closest('.recipe-card-fav')) return;
+      if (e.target.closest('.recipe-card-fav') || e.target.closest('.recipe-card-atg')) return;
       openRecipePage(card.dataset.recipeId);
     })
   );
@@ -744,6 +747,12 @@ function renderRecipes() {
       e.stopPropagation();
       toggleRecipeFavourite(btn.dataset.favId);
       renderRecipes();
+    })
+  );
+  list.querySelectorAll('.recipe-card-atg').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openAddToGrocerySheet(btn.dataset.atgId);
     })
   );
 }
