@@ -193,7 +193,7 @@ function openAddMorePopup(g) {
       <div class="qty-popup-label">${esc(g.itemName)}</div>
       <div class="qty-popup-already">Already on list: <strong>${g.quantity}${unitLabel}</strong></div>
       <div class="qty-popup-more-label">Add how much more?</div>
-      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="numeric" min="0.01" step="any" placeholder="0">
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="numeric" min="0.01" step="any" placeholder="">
       <div class="qty-popup-actions">
         <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
         <button class="qty-popup-ok"  id="qty-popup-ok">Add</button>
