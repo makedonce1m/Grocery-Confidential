@@ -934,6 +934,26 @@ body {
   cursor: pointer;
   font-family: var(--font);
 }
+.recipe-form-url-row {
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.recipe-form-url-row input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 16px;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color .2s;
+}
+.recipe-form-url-row input:focus { border-color: var(--green-lt); }
+.recipe-form-url-row input::placeholder { color: var(--text-3); }
+
 .recipe-form-body {
   padding: 16px 16px 0;
   display: flex;

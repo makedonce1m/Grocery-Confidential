@@ -730,13 +730,17 @@ function openRecipeFormPage(id = null) {
   // Photo preview
   const preview = document.getElementById('recipe-form-photo-preview');
   const photoBtn = document.getElementById('recipe-form-photo-btn');
+  const urlInput = document.getElementById('recipe-form-photo-url');
   if (recipe?.photo) {
     preview.src = recipe.photo;
     preview.hidden = false;
     photoBtn.textContent = 'Change Photo';
+    // Populate URL field if photo is a URL (not base64)
+    urlInput.value = recipe.photo.startsWith('data:') ? '' : recipe.photo;
   } else {
     preview.hidden = true;
     photoBtn.textContent = '+ Add Photo';
+    urlInput.value = '';
   }
 
   // Ingredients
@@ -1149,7 +1153,10 @@ function init() {
   const photoInput   = document.getElementById('recipe-form-photo-input');
   const photoPreview = document.getElementById('recipe-form-photo-preview');
   const photoBtn     = document.getElementById('recipe-form-photo-btn');
+  const photoUrlInput = document.getElementById('recipe-form-photo-url');
+
   photoBtn.addEventListener('click', () => photoInput.click());
+
   photoInput.addEventListener('change', async () => {
     const file = photoInput.files[0];
     if (!file) return;
@@ -1158,8 +1165,22 @@ function init() {
       photoPreview.src = b64;
       photoPreview.hidden = false;
       photoBtn.textContent = 'Change Photo';
+      photoUrlInput.value = '';  // clear URL input when file chosen
     } catch (e) { showToast('Could not load photo'); }
     photoInput.value = '';
+  });
+
+  photoUrlInput.addEventListener('input', () => {
+    const url = photoUrlInput.value.trim();
+    if (url) {
+      photoPreview.src = url;
+      photoPreview.hidden = false;
+      photoBtn.textContent = 'Change Photo';
+    } else {
+      photoPreview.hidden = true;
+      photoPreview.src = '';
+      photoBtn.textContent = '+ Add Photo';
+    }
   });
 
   // ── Add to Grocery sheet ──────────────────────
