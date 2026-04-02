@@ -255,9 +255,9 @@ body {
 .add-btn {
   width: 30px; height: 30px;
   border-radius: 8px;
-  background: var(--green);
-  color: #fff;
-  border: none;
+  background: var(--surface-2);
+  color: var(--text-3);
+  border: 1.5px solid var(--border);
   font-size: 20px;
   font-weight: 300;
   display: flex;
@@ -269,9 +269,11 @@ body {
   font-family: var(--font);
   line-height: 1;
 }
-.add-btn:active { transform: scale(.86); background: var(--green-dk); }
+.add-btn:active { transform: scale(.86); }
 .add-btn.in-list {
   background: var(--green);
+  border-color: var(--green);
+  color: #000;
   font-size: 14px;
   font-weight: 700;
 }
