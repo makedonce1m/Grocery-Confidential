@@ -232,7 +232,9 @@ body {
   color: var(--green);
   letter-spacing: .08em;
   text-transform: uppercase;
-  padding: 20px 16px 6px;
+  padding: 20px 16px 8px;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 0;
 }
 
 /* ── Item Card ── */
@@ -241,9 +243,7 @@ body {
   display: flex;
   align-items: center;
   padding: 13px 16px;
-  border-bottom: 1px solid var(--border);
 }
-.item-card:first-of-type { border-top: 1px solid var(--border); }
 .item-info  {
   flex: 1; min-width: 0;
   display: flex; align-items: baseline; gap: 6px;
@@ -307,11 +307,9 @@ body {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
   transition: opacity .2s;
   -webkit-tap-highlight-color: transparent;
 }
-.grocery-item:first-of-type { border-top: 1px solid var(--border); }
 .grocery-item.checked { opacity: .4; }
 
 .g-main {
