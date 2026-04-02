@@ -66,6 +66,7 @@ const DEFAULT_ITEMS = [
   { id: 'veg24', name: 'Peas',            categoryId: 'vegetables', unit: '' },
   { id: 'veg25', name: 'Celery',          categoryId: 'vegetables', unit: '' },
   // ── Protein ──────────────────────────────────
+  { id: 'pro00', name: 'Chicken',             categoryId: 'protein', unit: '' },
   { id: 'pro01', name: 'Chicken Thigh',       categoryId: 'protein', unit: '' },
   { id: 'pro02', name: 'Chicken Filet',       categoryId: 'protein', unit: '' },
   { id: 'pro03', name: 'Eggs',               categoryId: 'protein', unit: '' },
