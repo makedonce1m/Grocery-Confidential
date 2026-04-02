@@ -417,7 +417,7 @@ body {
   border-radius: var(--r-full);
   border: none;
   background: var(--green);
-  color: #fff;
+  color: #000;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -584,7 +584,7 @@ body {
   flex: 1;
   padding: 14px;
   background: var(--green);
-  color: #fff;
+  color: #000;
   border: none;
   border-radius: var(--r-md);
   font-size: 15px;

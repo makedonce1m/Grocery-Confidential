@@ -1129,12 +1129,7 @@ function init() {
     openModal('modal-add-item');
   });
 
-  // ── Empty state buttons ───────────────────────
-  document.getElementById('empty-add-btn').addEventListener('click', () => {
-    syncCategorySelect();
-    openModal('modal-add-item');
-  });
-  document.getElementById('go-browse-btn').addEventListener('click', () => switchView('items'));
+  document.getElementById('go-browse-btn')?.addEventListener('click', () => switchView('items'));
 
   // ── Edit mode ─────────────────────────────────
   document.getElementById('edit-mode-btn').addEventListener('click', toggleEditMode);
