@@ -623,11 +623,7 @@ function itemCard(item, cat) {
     : `<button class="add-btn${inList ? ' in-list' : ''}" data-item-id="${esc(item.id)}" aria-label="Add to grocery list">${inList ? '✓' : '+'}</button>`;
   return `<div class="item-card">
     <div class="item-info">
-      <div class="item-name">${esc(item.name)}</div>
-      <div class="item-meta">
-        <span class="item-tag">${esc(tag)}</span>
-        ${item.unit ? `<span class="item-unit">${esc(item.unit)}</span>` : ''}
-      </div>
+      <span class="item-name">${esc(item.name)}</span>${item.unit ? `<span class="item-unit">${esc(item.unit)}</span>` : ''}
     </div>
     ${actionBtn}
   </div>`;
