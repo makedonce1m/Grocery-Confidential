@@ -521,6 +521,7 @@ function openCatDropdown() {
       closeCatDropdown();
       renderPills();
       renderItems();
+      document.getElementById('view-items').scrollTop = 0;
     })
   );
 
@@ -1016,7 +1017,9 @@ function updateBadge() {
 function switchView(view) {
   state.view = view;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(`view-${view}`).classList.add('active');
+  const el = document.getElementById(`view-${view}`);
+  el.classList.add('active');
+  el.scrollTop = 0;
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`nav-${view}`).classList.add('active');
   if (view === 'grocery') renderGrocery();
