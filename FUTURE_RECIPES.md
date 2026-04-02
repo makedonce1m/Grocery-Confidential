@@ -22,12 +22,15 @@
 4. "Add all ingredients" button
 5. Step-by-step instructions
 
+## Decided (continued)
+- [x] Recipe photo — yes, one image per recipe
+- [x] Timers — future feature, timers triggered from instruction steps (e.g. "simmer for 20 min" becomes a tappable timer)
+- [x] Creating recipes — manually only for now, no URL import
+- [x] Unit conversion — a separate conversions file (see FUTURE_CONVERSIONS.md)
+
 ## Open Questions / Still To Discuss
-- [ ] Should recipes have a photo or just text?
 - [ ] Do we want a favourites / star system for recipes?
 - [ ] Should there be a prep time / cook time field?
-- [ ] Who creates recipes — only you manually, or do we want an import (e.g. paste a URL)?
-- [ ] When merging duplicate ingredients, if units differ (e.g. "200ml" + "1 cup") — convert automatically or just list both?
 
 ## Data Structure (rough idea)
 ```
