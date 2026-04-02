@@ -16,6 +16,15 @@ const state = {
   groceryList:        [],
   deletedItemIds:     [],
   deletedCategoryIds: [],
+  // Recipes
+  recipes:            [],
+  recipeSort:         'favourites', // favourites | alpha | recent
+  activeRecipeId:     null,
+  editingRecipeId:    null,
+  // Add-to-grocery sheet
+  atgRecipeId:        null,
+  atgServings:        1,
+  atgChecked:         new Set(),
 };
 
 // ══════════════════════════════════════════════
@@ -31,6 +40,7 @@ function saveData() {
     groceryList:        state.groceryList,
     deletedItemIds:     state.deletedItemIds,
     deletedCategoryIds: state.deletedCategoryIds,
+    recipes:            state.recipes,
   };
   try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
   catch (e) { console.warn('Could not save:', e); }
@@ -74,6 +84,9 @@ function loadData() {
     if (Array.isArray(data.groceryList))
       state.groceryList = data.groceryList;
 
+    if (Array.isArray(data.recipes))
+      state.recipes = data.recipes;
+
   } catch (e) {
     console.warn('Could not load saved data:', e);
   }
@@ -83,10 +96,31 @@ function loadData() {
 //  HELPERS
 // ══════════════════════════════════════════════
 
-function catById(id)  { return state.categories.find(c => c.id === id); }
-function itemById(id) { return state.items.find(i => i.id === id); }
+function catById(id)      { return state.categories.find(c => c.id === id); }
+function itemById(id)     { return state.items.find(i => i.id === id); }
+function recipeById(id)   { return state.recipes.find(r => r.id === id); }
 function groceryByItemId(itemId) { return state.groceryList.find(g => g.itemId === itemId); }
 function groceryById(id)         { return state.groceryList.find(g => g.id === id); }
+
+function sortedRecipes() {
+  const list = [...state.recipes];
+  if (state.recipeSort === 'alpha')
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  if (state.recipeSort === 'recent')
+    return list.sort((a, b) => b.createdAt - a.createdAt);
+  // favourites first, then by recency
+  return list.sort((a, b) => {
+    if (a.favourite !== b.favourite) return a.favourite ? -1 : 1;
+    return b.createdAt - a.createdAt;
+  });
+}
+
+function fmtTime(min) {
+  if (!min || min <= 0) return null;
+  if (min < 60) return `${min}m`;
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
 
 function filteredItems() {
   let list = state.items;
@@ -202,12 +236,114 @@ function addItem(name, categoryId, unit) {
   return item;
 }
 
+// ── Recipe CRUD ──────────────────────────────
+
+function addRecipe(data) {
+  const recipe = { id: `rec_${uid()}`, createdAt: Date.now(), favourite: false, ...data };
+  state.recipes.push(recipe);
+  saveData();
+  return recipe;
+}
+
+function updateRecipe(id, data) {
+  const idx = state.recipes.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  state.recipes[idx] = { ...state.recipes[idx], ...data };
+  saveData();
+}
+
+function deleteRecipe(id) {
+  state.recipes = state.recipes.filter(r => r.id !== id);
+  saveData();
+}
+
+function toggleRecipeFavourite(id) {
+  const r = recipeById(id);
+  if (!r) return;
+  r.favourite = !r.favourite;
+  saveData();
+}
+
+function addRecipeIngredientsToGrocery(recipeId, checkedIndices, servings) {
+  const recipe = recipeById(recipeId);
+  if (!recipe) return;
+  const scale = servings / (recipe.servings || 1);
+  let count = 0;
+  recipe.ingredients.forEach((ing, i) => {
+    if (!checkedIndices.has(i)) return;
+    const scaledAmt = Math.round(ing.amount * scale * 100) / 100;
+    const nameLower = ing.itemName.toLowerCase().trim();
+    // Try to match with existing item in database for proper category
+    const dbItem = state.items.find(it => it.name.toLowerCase() === nameLower);
+    // Merge if same name + same unit already in list
+    const existing = state.groceryList.find(g =>
+      g.itemName.toLowerCase() === nameLower && g.unit === ing.unit
+    );
+    if (existing) {
+      existing.quantity = Math.round((existing.quantity + scaledAmt) * 100) / 100;
+    } else {
+      state.groceryList.push({
+        id:           `g_${uid()}`,
+        itemId:       dbItem ? dbItem.id : null,
+        itemName:     ing.itemName,
+        categoryId:   dbItem ? dbItem.categoryId : null,
+        categoryName: dbItem ? (catById(dbItem.categoryId)?.name || '') : recipe.tag,
+        quantity:     scaledAmt,
+        unit:         ing.unit,
+        checked:      false,
+        addedAt:      Date.now(),
+      });
+      count++;
+    }
+  });
+  saveData();
+  updateBadge();
+  renderItems();
+  const merged = checkedIndices.size - count;
+  let msg = `${count} ingredient${count !== 1 ? 's' : ''} added`;
+  if (merged > 0) msg += `, ${merged} merged`;
+  showToast(msg);
+}
+
+// ── Image resize helper ───────────────────────
+
+function resizeImageToBase64(file, maxDim = 900) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function toggleEditMode() {
   state.editMode = !state.editMode;
   document.getElementById('edit-mode-btn').textContent = state.editMode ? 'Done' : 'Edit';
   document.getElementById('fab-add-item').style.display = state.editMode ? 'none' : '';
   renderPills();
   renderItems();
+}
+
+function cycleSortMode() {
+  const modes = ['favourites', 'alpha', 'recent'];
+  const labels = { favourites: 'Fav first', alpha: 'A → Z', recent: 'Recent' };
+  const next = modes[(modes.indexOf(state.recipeSort) + 1) % modes.length];
+  state.recipeSort = next;
+  document.getElementById('recipe-sort-btn').textContent = labels[next];
+  renderRecipes();
 }
 
 function deleteItem(itemId) {
@@ -451,6 +587,283 @@ function renderGrocery() {
   });
 }
 
+// ══════════════════════════════════════════════
+//  RECIPE RENDER
+// ══════════════════════════════════════════════
+
+function renderRecipes() {
+  const list  = document.getElementById('recipe-list');
+  const empty = document.getElementById('recipes-empty');
+  const recipes = sortedRecipes();
+
+  if (!recipes.length) {
+    list.innerHTML = '';
+    list.hidden  = true;
+    empty.hidden = false;
+    return;
+  }
+  list.hidden  = false;
+  empty.hidden = true;
+
+  list.innerHTML = recipes.map(r => {
+    const total = (r.prepTime || 0) + (r.cookTime || 0);
+    const timeStr = fmtTime(total);
+    const thumb = r.photo
+      ? `<img src="${r.photo}" alt="">`
+      : `<div class="recipe-card-thumb-placeholder">${esc(r.tag || '')}</div>`;
+    return `<div class="recipe-card" data-recipe-id="${esc(r.id)}">
+      <div class="recipe-card-thumb">${thumb}</div>
+      <div class="recipe-card-info">
+        <div class="recipe-card-name">${esc(r.name)}</div>
+        <div class="recipe-card-meta">
+          ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
+          ${timeStr ? `<span class="recipe-card-time">${timeStr}</span>` : ''}
+        </div>
+      </div>
+      <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
+        ${r.favourite ? '♥' : '♡'}
+      </button>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.recipe-card').forEach(card =>
+    card.addEventListener('click', e => {
+      if (e.target.closest('.recipe-card-fav')) return;
+      openRecipePage(card.dataset.recipeId);
+    })
+  );
+  list.querySelectorAll('.recipe-card-fav').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleRecipeFavourite(btn.dataset.favId);
+      renderRecipes();
+    })
+  );
+}
+
+function openRecipePage(id) {
+  state.activeRecipeId = id;
+  const recipe = recipeById(id);
+  if (!recipe) return;
+
+  // Photo
+  const photoEl = document.getElementById('recipe-page-photo');
+  const noPhoto  = document.getElementById('recipe-page-no-photo');
+  if (recipe.photo) {
+    photoEl.src = recipe.photo;
+    photoEl.hidden = false;
+    noPhoto.hidden = true;
+  } else {
+    photoEl.hidden = true;
+    noPhoto.hidden = false;
+  }
+
+  // Title + fav
+  document.getElementById('recipe-page-name').textContent = recipe.name;
+  const favBtn = document.getElementById('recipe-page-fav');
+  favBtn.textContent = recipe.favourite ? '♥' : '♡';
+  favBtn.classList.toggle('active', !!recipe.favourite);
+
+  // Meta pills
+  const meta = document.getElementById('recipe-page-meta');
+  const pills = [];
+  if (recipe.tag) pills.push(`<span class="recipe-meta-pill tag">${esc(recipe.tag)}</span>`);
+  const prep = fmtTime(recipe.prepTime), cook = fmtTime(recipe.cookTime), total = fmtTime((recipe.prepTime||0)+(recipe.cookTime||0));
+  if (prep)  pills.push(`<span class="recipe-meta-pill">Prep ${prep}</span>`);
+  if (cook)  pills.push(`<span class="recipe-meta-pill">Cook ${cook}</span>`);
+  if (total && (recipe.prepTime||0)+(recipe.cookTime||0) > 0) pills.push(`<span class="recipe-meta-pill">Total ${total}</span>`);
+  if (recipe.servings) pills.push(`<span class="recipe-meta-pill">Serves ${recipe.servings}</span>`);
+  meta.innerHTML = pills.join('');
+
+  // Instructions
+  const instrEl = document.getElementById('recipe-page-instructions');
+  const section  = document.getElementById('recipe-page-instructions-section');
+  if (recipe.instructions?.length) {
+    section.hidden = false;
+    instrEl.innerHTML = recipe.instructions.map((step, i) => `
+      <div class="instruction-step">
+        <div class="step-num">${i + 1}</div>
+        <div class="step-text">${esc(step)}</div>
+      </div>`).join('');
+  } else {
+    section.hidden = true;
+  }
+
+  document.getElementById('recipe-page').classList.add('open');
+}
+
+function closeRecipePage() {
+  document.getElementById('recipe-page').classList.remove('open');
+  state.activeRecipeId = null;
+}
+
+// ── Recipe Form Page ──────────────────────────
+
+function openRecipeFormPage(id = null) {
+  state.editingRecipeId = id;
+  const recipe = id ? recipeById(id) : null;
+  document.getElementById('recipe-form-title').textContent = id ? 'Edit Recipe' : 'New Recipe';
+
+  // Reset / prefill fields
+  document.getElementById('rf-name').value     = recipe?.name     || '';
+  document.getElementById('rf-tag').value      = recipe?.tag      || 'dinner';
+  document.getElementById('rf-prep').value     = recipe?.prepTime != null ? recipe.prepTime : '';
+  document.getElementById('rf-cook').value     = recipe?.cookTime != null ? recipe.cookTime : '';
+  document.getElementById('rf-servings').value = recipe?.servings || '';
+
+  // Photo preview
+  const preview = document.getElementById('recipe-form-photo-preview');
+  const photoBtn = document.getElementById('recipe-form-photo-btn');
+  if (recipe?.photo) {
+    preview.src = recipe.photo;
+    preview.hidden = false;
+    photoBtn.textContent = 'Change Photo';
+  } else {
+    preview.hidden = true;
+    photoBtn.textContent = '+ Add Photo';
+  }
+
+  // Ingredients
+  renderFormIngredients(recipe?.ingredients || []);
+
+  // Steps
+  renderFormSteps(recipe?.instructions || []);
+
+  document.getElementById('recipe-form-page').classList.add('open');
+}
+
+function closeRecipeFormPage() {
+  document.getElementById('recipe-form-page').classList.remove('open');
+  state.editingRecipeId = null;
+}
+
+function renderFormIngredients(list) {
+  const UNITS = ['g','kg','ml','L','tsp','tbsp','cup','piece','clove','slice','handful','pinch','sprig',''];
+  const container = document.getElementById('rf-ingredients-list');
+  container.innerHTML = list.map((ing, i) => `
+    <div class="rf-ingredient-row" data-ing-idx="${i}">
+      <input class="rf-ing-name field input" type="text" placeholder="Ingredient" value="${esc(ing.itemName)}" style="flex:2;min-width:0;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:15px;font-family:var(--font);outline:none;">
+      <input class="rf-ing-amount field input" type="number" min="0" placeholder="Amt" value="${ing.amount || ''}" style="width:60px;padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:15px;font-family:var(--font);outline:none;text-align:right;">
+      <select class="rf-ing-unit" style="width:80px;padding:10px 6px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--font);outline:none;-webkit-appearance:none;">
+        ${UNITS.map(u => `<option value="${u}"${ing.unit===u?' selected':''}>${u||'—'}</option>`).join('')}
+      </select>
+      <button class="rf-row-del" data-del-ing="${i}" type="button">✕</button>
+    </div>`).join('');
+
+  container.querySelectorAll('.rf-row-del').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const rows = getFormIngredients();
+      rows.splice(parseInt(btn.dataset.delIng), 1);
+      renderFormIngredients(rows);
+    })
+  );
+}
+
+function renderFormSteps(list) {
+  const container = document.getElementById('rf-instructions-list');
+  container.innerHTML = list.map((step, i) => `
+    <div class="rf-step-row" data-step-idx="${i}">
+      <div class="rf-step-num">${i + 1}</div>
+      <textarea class="rf-step-text" placeholder="Describe this step…">${esc(step)}</textarea>
+      <button class="rf-row-del" data-del-step="${i}" type="button">✕</button>
+    </div>`).join('');
+
+  container.querySelectorAll('.rf-row-del').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const steps = getFormSteps();
+      steps.splice(parseInt(btn.dataset.delStep), 1);
+      renderFormSteps(steps);
+    })
+  );
+}
+
+function getFormIngredients() {
+  return Array.from(document.querySelectorAll('#rf-ingredients-list .rf-ingredient-row')).map(row => ({
+    itemName: row.querySelector('.rf-ing-name').value.trim(),
+    amount:   parseFloat(row.querySelector('.rf-ing-amount').value) || 0,
+    unit:     row.querySelector('.rf-ing-unit').value,
+  })).filter(i => i.itemName);
+}
+
+function getFormSteps() {
+  return Array.from(document.querySelectorAll('#rf-instructions-list .rf-step-text'))
+    .map(t => t.value.trim()).filter(Boolean);
+}
+
+function saveRecipeForm() {
+  const name = document.getElementById('rf-name').value.trim();
+  if (!name) {
+    document.getElementById('rf-name').classList.add('error');
+    showToast('Please enter a recipe name');
+    return;
+  }
+  const data = {
+    name,
+    tag:          document.getElementById('rf-tag').value,
+    prepTime:     parseInt(document.getElementById('rf-prep').value)     || 0,
+    cookTime:     parseInt(document.getElementById('rf-cook').value)     || 0,
+    servings:     parseInt(document.getElementById('rf-servings').value) || 1,
+    ingredients:  getFormIngredients(),
+    instructions: getFormSteps(),
+    photo:        document.getElementById('recipe-form-photo-preview').hidden
+                    ? (state.editingRecipeId ? recipeById(state.editingRecipeId)?.photo || null : null)
+                    : document.getElementById('recipe-form-photo-preview').src,
+  };
+  if (state.editingRecipeId) {
+    updateRecipe(state.editingRecipeId, data);
+    showToast('Recipe updated');
+    closeRecipeFormPage();
+    if (state.activeRecipeId === state.editingRecipeId) openRecipePage(state.editingRecipeId);
+  } else {
+    const r = addRecipe(data);
+    showToast(`${r.name} added`);
+    closeRecipeFormPage();
+  }
+  renderRecipes();
+}
+
+// ── Add to Grocery Sheet ──────────────────────
+
+function openAddToGrocerySheet(recipeId) {
+  const recipe = recipeById(recipeId);
+  if (!recipe) return;
+  state.atgRecipeId = recipeId;
+  state.atgServings = recipe.servings || 1;
+  state.atgChecked  = new Set(recipe.ingredients.map((_, i) => i));
+  document.getElementById('atg-recipe-name').textContent = recipe.name;
+  renderAtgSheet();
+  openModal('modal-add-to-grocery');
+}
+
+function renderAtgSheet() {
+  const recipe = recipeById(state.atgRecipeId);
+  if (!recipe) return;
+  const scale = state.atgServings / (recipe.servings || 1);
+  document.getElementById('atg-servings-val').textContent = state.atgServings;
+
+  document.getElementById('atg-ingredients-list').innerHTML = recipe.ingredients.map((ing, i) => {
+    const checked = state.atgChecked.has(i);
+    const scaledAmt = Math.round(ing.amount * scale * 100) / 100;
+    const amtStr = scaledAmt ? `${scaledAmt} ${ing.unit}`.trim() : ing.unit || '';
+    return `<div class="atg-ingredient-row" data-ing-idx="${i}">
+      <div class="atg-check${checked ? ' checked' : ''}">${checked ? '✓' : ''}</div>
+      <span class="atg-ing-name">${esc(ing.itemName)}</span>
+      ${amtStr ? `<span class="atg-ing-amount">${esc(amtStr)}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('.atg-ingredient-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const idx = parseInt(row.dataset.ingIdx);
+      state.atgChecked.has(idx) ? state.atgChecked.delete(idx) : state.atgChecked.add(idx);
+      renderAtgSheet();
+    });
+  });
+
+  const n = state.atgChecked.size;
+  document.getElementById('atg-confirm-btn').textContent = `Add ${n} ingredient${n !== 1 ? 's' : ''} to list`;
+}
+
 function updateBadge() {
   const badge = document.getElementById('grocery-badge');
   const n = uncheckedCount();
@@ -469,6 +882,7 @@ function switchView(view) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`nav-${view}`).classList.add('active');
   if (view === 'grocery') renderGrocery();
+  if (view === 'recipes') renderRecipes();
 }
 
 // ══════════════════════════════════════════════
@@ -656,6 +1070,91 @@ function init() {
   });
   document.getElementById('cat-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('confirm-add-category').click();
+  });
+
+  // ── Recipes: list buttons ─────────────────────
+  document.getElementById('add-recipe-btn').addEventListener('click', () => openRecipeFormPage());
+  document.getElementById('empty-add-recipe-btn').addEventListener('click', () => openRecipeFormPage());
+  document.getElementById('recipe-sort-btn').addEventListener('click', cycleSortMode);
+
+  // ── Recipes: detail page ──────────────────────
+  document.getElementById('recipe-back-btn').addEventListener('click', closeRecipePage);
+  document.getElementById('recipe-edit-btn').addEventListener('click', () => {
+    openRecipeFormPage(state.activeRecipeId);
+  });
+  document.getElementById('recipe-delete-btn').addEventListener('click', () => {
+    openModal('modal-confirm-del-recipe');
+  });
+  document.getElementById('confirm-del-recipe-btn').addEventListener('click', () => {
+    closeModal('modal-confirm-del-recipe');
+    const id = state.activeRecipeId;
+    closeRecipePage();
+    deleteRecipe(id);
+    renderRecipes();
+    showToast('Recipe deleted');
+  });
+  document.getElementById('recipe-page-fav').addEventListener('click', () => {
+    if (!state.activeRecipeId) return;
+    toggleRecipeFavourite(state.activeRecipeId);
+    const r = recipeById(state.activeRecipeId);
+    const btn = document.getElementById('recipe-page-fav');
+    btn.textContent = r.favourite ? '♥' : '♡';
+    btn.classList.toggle('active', r.favourite);
+    renderRecipes();
+  });
+  document.getElementById('recipe-add-grocery-btn').addEventListener('click', () => {
+    if (state.activeRecipeId) openAddToGrocerySheet(state.activeRecipeId);
+  });
+
+  // ── Recipes: form page ────────────────────────
+  document.getElementById('recipe-form-cancel').addEventListener('click', closeRecipeFormPage);
+  document.getElementById('recipe-form-save').addEventListener('click', saveRecipeForm);
+  document.getElementById('rf-add-ingredient-btn').addEventListener('click', () => {
+    renderFormIngredients([...getFormIngredients(), { itemName: '', amount: 0, unit: 'g' }]);
+  });
+  document.getElementById('rf-add-step-btn').addEventListener('click', () => {
+    renderFormSteps([...getFormSteps(), '']);
+  });
+  document.getElementById('rf-name').addEventListener('input', e =>
+    e.target.classList.remove('error')
+  );
+
+  // Photo picker
+  const photoInput   = document.getElementById('recipe-form-photo-input');
+  const photoPreview = document.getElementById('recipe-form-photo-preview');
+  const photoBtn     = document.getElementById('recipe-form-photo-btn');
+  photoBtn.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    try {
+      const b64 = await resizeImageToBase64(file);
+      photoPreview.src = b64;
+      photoPreview.hidden = false;
+      photoBtn.textContent = 'Change Photo';
+    } catch (e) { showToast('Could not load photo'); }
+    photoInput.value = '';
+  });
+
+  // ── Add to Grocery sheet ──────────────────────
+  document.getElementById('atg-servings-minus').addEventListener('click', () => {
+    if (state.atgServings <= 1) return;
+    state.atgServings--;
+    renderAtgSheet();
+  });
+  document.getElementById('atg-servings-plus').addEventListener('click', () => {
+    state.atgServings++;
+    renderAtgSheet();
+  });
+  document.getElementById('atg-confirm-btn').addEventListener('click', () => {
+    addRecipeIngredientsToGrocery(state.atgRecipeId, state.atgChecked, state.atgServings);
+    closeModal('modal-add-to-grocery');
+  });
+  document.getElementById('modal-add-to-grocery').addEventListener('click', e => {
+    if (e.target.id === 'modal-add-to-grocery') closeModal('modal-add-to-grocery');
+  });
+  document.getElementById('modal-confirm-del-recipe').addEventListener('click', e => {
+    if (e.target.id === 'modal-confirm-del-recipe') closeModal('modal-confirm-del-recipe');
   });
 }
 
