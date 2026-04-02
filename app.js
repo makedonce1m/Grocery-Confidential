@@ -152,29 +152,71 @@ function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`
 function addToGrocery(itemId) {
   const existing = groceryByItemId(itemId);
   if (existing) {
-    existing.quantity += 1;
-    showToast(`Quantity → ${existing.quantity}`);
-  } else {
-    const item = itemById(itemId);
-    if (!item) return;
-    const cat = catById(item.categoryId);
-    state.groceryList.push({
-      id:          `g_${uid()}`,
-      itemId:      item.id,
-      itemName:    item.name,
-      categoryId:  item.categoryId,
-      categoryName:cat ? cat.name  : '',
-      categoryEmoji:cat ? cat.emoji : '📦',
-      quantity:    1,
-      unit:        item.unit || '',
-      checked:     false,
-      addedAt:     Date.now(),
-    });
-    showToast(`${item.name} added to list`);
+    openAddMorePopup(existing);
+    return;
   }
+  const item = itemById(itemId);
+  if (!item) return;
+  const cat = catById(item.categoryId);
+  state.groceryList.push({
+    id:           `g_${uid()}`,
+    itemId:       item.id,
+    itemName:     item.name,
+    categoryId:   item.categoryId,
+    categoryName: cat ? cat.name  : '',
+    categoryEmoji:cat ? cat.emoji : '📦',
+    quantity:     1,
+    unit:         item.unit || '',
+    checked:      false,
+    addedAt:      Date.now(),
+  });
+  showToast(`${item.name} added to list`);
   saveData();
   updateBadge();
-  renderItems(); // refresh button state
+  renderItems();
+}
+
+function openAddMorePopup(g) {
+  document.getElementById('qty-popup-overlay')?.remove();
+
+  const unitLabel = g.unit ? ` ${g.unit}` : '';
+  const overlay = document.createElement('div');
+  overlay.id = 'qty-popup-overlay';
+  overlay.className = 'qty-popup-overlay';
+  overlay.innerHTML = `
+    <div class="qty-popup" role="dialog">
+      <div class="qty-popup-label">${esc(g.itemName)}</div>
+      <div class="qty-popup-already">Already on list: <strong>${g.quantity}${unitLabel}</strong></div>
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="decimal" min="0.01" step="any" placeholder="Add how much more?">
+      <div class="qty-popup-actions">
+        <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
+        <button class="qty-popup-ok"  id="qty-popup-ok">Add</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('qty-popup-input');
+  input.focus();
+
+  const close = () => overlay.remove();
+
+  const confirm = () => {
+    const val = parseFloat(input.value);
+    if (!isNaN(val) && val > 0) {
+      g.quantity = Math.round((g.quantity + val) * 100) / 100;
+      saveData();
+      updateBadge();
+      renderItems();
+      if (state.view === 'grocery') renderGrocery();
+      showToast(`${g.itemName} → ${g.quantity}${unitLabel}`);
+    }
+    close();
+  };
+
+  document.getElementById('qty-popup-ok').addEventListener('click', confirm);
+  document.getElementById('qty-popup-cancel').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') close(); });
 }
 
 function removeFromGrocery(groceryId) {
