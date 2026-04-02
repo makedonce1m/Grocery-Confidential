@@ -763,20 +763,29 @@ function closeRecipeFormPage() {
 function renderFormIngredients(list) {
   const UNITS = ['g','kg','ml','L','tsp','tbsp','cup','fl oz','oz','lb','piece','clove','slice','handful','pinch','sprig',''];
   const sortedItems = [...state.items].sort((a, b) => a.name.localeCompare(b.name));
-  const itemOpts = sortedItems.map(it =>
-    `<option value="${esc(it.name)}">${esc(it.name)}</option>`
-  ).join('');
+  // One shared datalist is enough — all rows reference the same one
+  const datalistId = 'rf-ing-datalist';
 
   const S = 'padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);color:var(--text);font-size:16px;font-family:var(--font);outline:none;-webkit-appearance:none;';
 
   const container = document.getElementById('rf-ingredients-list');
+
+  // Inject shared datalist once
+  if (!document.getElementById(datalistId)) {
+    const dl = document.createElement('datalist');
+    dl.id = datalistId;
+    dl.innerHTML = sortedItems.map(it => `<option value="${esc(it.name)}">`).join('');
+    document.body.appendChild(dl);
+  }
+
   container.innerHTML = list.map((ing, i) => `
     <div class="rf-ingredient-row" data-ing-idx="${i}">
-      <select class="rf-ing-name" style="flex:2;min-width:0;${S}">
-        <option value="">Ingredient…</option>
-        ${itemOpts.replace(`value="${esc(ing.itemName)}"`, `value="${esc(ing.itemName)}" selected`)}
-      </select>
-      <input class="rf-ing-amount" type="number" min="0" step="any" placeholder="Amt" value="${ing.amount || ''}" style="width:62px;${S}text-align:right;">
+      <input class="rf-ing-name" type="text" list="${datalistId}" placeholder="Ingredient…"
+             value="${esc(ing.itemName)}" autocomplete="off"
+             style="flex:2;min-width:0;${S}">
+      <input class="rf-ing-amount" type="number" min="0" step="any" placeholder="Amt"
+             value="${ing.amount || ''}"
+             style="width:62px;${S}text-align:right;">
       <select class="rf-ing-unit" style="width:74px;${S}">
         ${UNITS.map(u => `<option value="${u}"${ing.unit===u?' selected':''}>${u||'—'}</option>`).join('')}
       </select>
