@@ -149,14 +149,14 @@ function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`
 //  ACTIONS
 // ══════════════════════════════════════════════
 
-function addToGrocery(itemId, delayPopupFocus = false) {
+function addToGrocery(itemId) {
   const existing = groceryByItemId(itemId);
   if (existing) {
     if (existing.checked) {
       // Remove the checked item and fall through to add it fresh
       state.groceryList = state.groceryList.filter(g => g.id !== existing.id);
     } else {
-      openAddMorePopup(existing, delayPopupFocus);
+      openAddMorePopup(existing);
       return;
     }
   }
@@ -181,7 +181,7 @@ function addToGrocery(itemId, delayPopupFocus = false) {
   renderItems();
 }
 
-function openAddMorePopup(g, delayFocus = false) {
+function openAddMorePopup(g) {
   document.getElementById('qty-popup-overlay')?.remove();
 
   const unitLabel = g.unit ? ` ${g.unit}` : '';
@@ -202,8 +202,7 @@ function openAddMorePopup(g, delayFocus = false) {
   document.body.appendChild(overlay);
 
   const input = document.getElementById('qty-popup-input');
-  if (delayFocus) setTimeout(() => input.focus(), 80);
-  else input.focus();
+  input.focus();
 
   const close = () => overlay.remove();
 
@@ -585,30 +584,23 @@ function renderItems() {
       const wasSearching = !!state.searchQuery;
       const alreadyInList = !!groceryByItemId(btn.dataset.itemId);
 
-      if (wasSearching && alreadyInList) {
-        // Blur first so keyboard dismisses before popup opens
-        document.getElementById('search-input').blur();
+      // Always clear search state first (behind the popup if one opens)
+      if (wasSearching) {
+        const si = document.getElementById('search-input');
+        const sc = document.getElementById('search-clear');
+        si.value = '';
+        state.searchQuery = '';
+        sc.classList.remove('visible');
+        renderItems();
       }
 
-      addToGrocery(btn.dataset.itemId, wasSearching && alreadyInList);
+      // Don't blur — let focus shift directly from search input to popup numpad
+      // so keyboard stays up and switches from text→numeric
+      addToGrocery(btn.dataset.itemId);
 
       if (wasSearching && !alreadyInList) {
-        // Item was new — clear search and reopen keyboard to keep adding
-        const si = document.getElementById('search-input');
-        const sc = document.getElementById('search-clear');
-        si.value = '';
-        state.searchQuery = '';
-        sc.classList.remove('visible');
-        renderItems();
-        si.focus();
-      } else if (wasSearching && alreadyInList) {
-        // Popup is opening — just clear the search behind it
-        const si = document.getElementById('search-input');
-        const sc = document.getElementById('search-clear');
-        si.value = '';
-        state.searchQuery = '';
-        sc.classList.remove('visible');
-        renderItems();
+        // Item was new — reopen keyboard to keep adding
+        document.getElementById('search-input').focus();
       }
     })
   );
