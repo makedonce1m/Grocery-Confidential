@@ -490,6 +490,15 @@ function renderItems() {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       addToGrocery(btn.dataset.itemId);
+      if (state.searchQuery) {
+        const si = document.getElementById('search-input');
+        const sc = document.getElementById('search-clear');
+        si.value = '';
+        state.searchQuery = '';
+        sc.classList.remove('visible');
+        renderItems();
+        si.focus();
+      }
     })
   );
 
