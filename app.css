@@ -227,11 +227,9 @@ body {
 
 /* section header (group by category) */
 .section-hdr {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   color: var(--green);
-  letter-spacing: .08em;
-  text-transform: uppercase;
   padding: 20px 16px 8px;
   border-bottom: 1.5px solid var(--border);
   margin-bottom: 0;
