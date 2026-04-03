@@ -773,22 +773,40 @@ function openRecipePage(id) {
   }
   noPhoto.hidden = true;
 
+  // Tag overlay on photo
+  const tagOverlay = document.getElementById('recipe-page-tag-overlay');
+  if (recipe.tag && recipe.photo) {
+    tagOverlay.textContent = recipe.tag;
+    tagOverlay.hidden = false;
+  } else {
+    tagOverlay.hidden = true;
+  }
+
   // Title + fav
   document.getElementById('recipe-page-name').textContent = recipe.name;
   const favBtn = document.getElementById('recipe-page-fav');
   favBtn.textContent = recipe.favourite ? '♥' : '♡';
   favBtn.classList.toggle('active', !!recipe.favourite);
 
-  // Meta pills
+  // Meta: stat bar
   const meta = document.getElementById('recipe-page-meta');
-  const pills = [];
-  if (recipe.tag) pills.push(`<span class="recipe-meta-pill tag">${esc(recipe.tag)}</span>`);
-  const prep = fmtTime(recipe.prepTime), cook = fmtTime(recipe.cookTime), total = fmtTime((recipe.prepTime||0)+(recipe.cookTime||0));
-  if (prep)  pills.push(`<span class="recipe-meta-pill">Prep ${prep}</span>`);
-  if (cook)  pills.push(`<span class="recipe-meta-pill">Cook ${cook}</span>`);
-  if (total && (recipe.prepTime||0)+(recipe.cookTime||0) > 0) pills.push(`<span class="recipe-meta-pill">Total ${total}</span>`);
-  if (recipe.servings) pills.push(`<span class="recipe-meta-pill">Serves ${recipe.servings}</span>`);
-  meta.innerHTML = pills.join('');
+  const prep = fmtTime(recipe.prepTime), cook = fmtTime(recipe.cookTime);
+  const stats = [];
+  if (prep) stats.push({ label: 'Prep', value: prep });
+  if (cook) stats.push({ label: 'Cook', value: cook });
+  if (recipe.servings) stats.push({ label: 'Serves', value: recipe.servings });
+
+  let metaHtml = '';
+  if (recipe.tag && !recipe.photo) metaHtml += `<span class="recipe-meta-pill tag">${esc(recipe.tag)}</span>`;
+  if (stats.length) {
+    metaHtml += `<div class="recipe-stat-row">${stats.map((s, i) => `
+      ${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
+      <div class="recipe-stat-item">
+        <div class="recipe-stat-label">${s.label}</div>
+        <div class="recipe-stat-value">${esc(String(s.value))}</div>
+      </div>`).join('')}</div>`;
+  }
+  meta.innerHTML = metaHtml;
 
   // Ingredients
   const ingSection = document.getElementById('recipe-page-ingredients-section');
