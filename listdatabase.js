@@ -598,7 +598,7 @@ const SEED_RECIPES = [
   },
   {
     id:        'recipe_pesto_pancetta_cake',
-    name:      'Pesto & Pancetta Cake',
+    name:      'Cake Salé Chèvre Pesto',
     tag:       'lunch',
     photo:     'https://assets.afcdn.com/recipe/20230424/142370_w1024h768c1cx1872cy2808cxt0cyt0cxb3744cyb5616.jpg',
     favourite: false,
