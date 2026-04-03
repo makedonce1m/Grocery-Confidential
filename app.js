@@ -967,6 +967,11 @@ function openServingsPopup() {
   const save  = () => {
     const val = parseFloat(input.value);
     if (!val || val <= 0) return;
+    const scale = val / (recipe.servings || 1);
+    recipe.ingredients = recipe.ingredients.map(ing => ({
+      ...ing,
+      amount: ing.amount ? Math.round(ing.amount * scale * 100) / 100 : ing.amount,
+    }));
     recipe.servings = val;
     saveData();
     close();
