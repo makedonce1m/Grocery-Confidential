@@ -63,21 +63,22 @@
         </div>
         <div class="header-actions">
           <button class="header-btn theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">☀</button>
+          <div class="recipe-filter-wrap" id="recipe-filter-wrap">
+            <button class="header-btn" id="recipe-filter-btn">All</button>
+            <div class="recipe-filter-dropdown" id="recipe-filter-dropdown" hidden>
+              <button class="recipe-filter-option active" data-tag="all">All</button>
+              <button class="recipe-filter-option" data-tag="breakfast">Breakfast</button>
+              <button class="recipe-filter-option" data-tag="lunch">Lunch</button>
+              <button class="recipe-filter-option" data-tag="dinner">Dinner</button>
+              <button class="recipe-filter-option" data-tag="dessert">Dessert</button>
+              <button class="recipe-filter-option" data-tag="sauces">Sauces</button>
+              <button class="recipe-filter-option" data-tag="cocktails">Cocktails</button>
+            </div>
+          </div>
           <button class="header-btn" id="recipe-sort-btn">Sort</button>
           <button class="header-btn header-btn-icon" id="add-recipe-btn" aria-label="Add recipe">+</button>
         </div>
       </header>
-      <div class="tag-filter-bar" id="tag-filter-bar">
-        <div class="tag-filter-scroll">
-          <button class="tag-filter-pill active" data-tag="all">All</button>
-          <button class="tag-filter-pill" data-tag="breakfast">Breakfast</button>
-          <button class="tag-filter-pill" data-tag="lunch">Lunch</button>
-          <button class="tag-filter-pill" data-tag="dinner">Dinner</button>
-          <button class="tag-filter-pill" data-tag="dessert">Dessert</button>
-          <button class="tag-filter-pill" data-tag="sauces">Sauces</button>
-          <button class="tag-filter-pill" data-tag="cocktails">Cocktails</button>
-        </div>
-      </div>
       <div class="items-scroll">
         <div class="recipe-list" id="recipe-list"></div>
         <div class="empty-state" id="recipes-empty" hidden>

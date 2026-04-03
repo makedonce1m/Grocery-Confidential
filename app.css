@@ -343,50 +343,41 @@ body {
   box-shadow: 0 2px 8px rgba(245,158,11,.3);
 }
 
-/* ── Tag filter bar ── */
-.tag-filter-bar {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  padding: 8px 0 8px 12px;
+/* ── Recipe filter dropdown ── */
+.recipe-filter-wrap {
+  position: relative;
 }
-.tag-filter-scroll {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding-right: 12px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.tag-filter-scroll::-webkit-scrollbar { display: none; }
-.tag-filter-pill {
-  flex-shrink: 0;
-  padding: 6px 14px;
-  border-radius: var(--r-full);
-  background: var(--surface-2);
+.recipe-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surface);
   border: 1.5px solid var(--border);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  min-width: 140px;
+  overflow: hidden;
+  z-index: 200;
+  animation: fadeIn .15s ease-out;
+}
+.recipe-filter-option {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
   font-family: var(--font);
-  transition: opacity .15s, box-shadow .15s;
-  white-space: nowrap;
-  box-shadow: var(--shadow-sm);
+  transition: background .12s;
 }
-.tag-filter-pill:active { opacity: .75; }
-.tag-filter-pill.active {
-  background: var(--green);
-  border-color: var(--green-dk);
-  color: #000;
-  box-shadow: var(--shadow-btn);
-}
-.tag-filter-pill[data-tag="breakfast"].active  { background: var(--tag-breakfast); border-color: #C2410C; color: #fff; }
-.tag-filter-pill[data-tag="lunch"].active      { background: var(--tag-lunch);     border-color: #15803D; color: #fff; }
-.tag-filter-pill[data-tag="dinner"].active     { background: var(--tag-dinner);    border-color: #4338CA; color: #fff; }
-.tag-filter-pill[data-tag="dessert"].active    { background: var(--tag-dessert);   border-color: #BE185D; color: #fff; }
-.tag-filter-pill[data-tag="cocktails"].active  { background: var(--tag-cocktails); border-color: #7E22CE; color: #fff; }
-.tag-filter-pill[data-tag="sauces"].active     { background: var(--tag-sauces);    border-color: #B91C1C; color: #fff; }
+.recipe-filter-option:last-child { border-bottom: none; }
+.recipe-filter-option:active { background: var(--surface-2); }
+.recipe-filter-option.active { color: var(--green); font-weight: 700; }
 
 /* ── Header actions ── */
 .header-actions { display: flex; gap: 8px; align-items: center; }
