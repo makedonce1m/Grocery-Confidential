@@ -1450,7 +1450,7 @@ function init() {
     if (!row || row.classList.contains('pressing')) return;
     if (row.classList.contains('done')) { row.classList.remove('done'); return; }
     row.classList.add('pressing');
-    setTimeout(() => { row.classList.remove('pressing'); row.classList.add('done'); }, 280);
+    setTimeout(() => { row.classList.remove('pressing'); row.classList.add('done'); }, 180);
   });
   document.getElementById('recipe-edit-btn').addEventListener('click', () => {
     openRecipeFormPage(state.activeRecipeId);
