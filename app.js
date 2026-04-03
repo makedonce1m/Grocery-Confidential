@@ -758,6 +758,7 @@ function openRecipePage(id) {
   state.activeRecipeId = id;
   const recipe = recipeById(id);
   if (!recipe) return;
+  document.getElementById('recipe-page-scroll').scrollTop = 0;
 
   // Photo
   const photoEl = document.getElementById('recipe-page-photo');
