@@ -892,7 +892,7 @@ function openRecipePage(id) {
       return `${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
       <div class="recipe-stat-item${isServings ? ' tappable' : ''}"${isServings ? ' data-action="edit-servings"' : ''}>
         <div class="recipe-stat-label">${s.label}</div>
-        <div class="recipe-stat-value">${esc(String(s.value))}${isServings ? '<span class="recipe-stat-edit">✎</span>' : ''}</div>
+        <div class="recipe-stat-value">${esc(String(s.value))}${isServings ? '' : ''}</div>
       </div>`;
     }).join('')}</div>`;
   }
