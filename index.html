@@ -233,15 +233,21 @@
           <h2 id="atg-recipe-name">Add to groceries</h2>
           <button class="modal-close" data-modal="modal-add-to-grocery">✕</button>
         </div>
-        <div class="modal-body" style="padding-bottom:0">
-          <div class="atg-servings-row">
-            <span class="atg-servings-label">Servings</span>
-            <div class="qty">
-              <button class="qty-btn" id="atg-servings-minus" aria-label="Less">−</button>
-              <span class="qty-val" id="atg-servings-val">4</span>
-              <button class="qty-btn" id="atg-servings-plus" aria-label="More">+</button>
-            </div>
-          </div>
+        <div class="atg-servings-row">
+          <span class="atg-servings-label">Servings</span>
+          <select id="atg-servings-select" class="atg-servings-select">
+            <option value="0.5">½</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+          </select>
+        </div>
+        <div class="modal-body atg-body" style="padding-bottom:0">
           <div id="atg-ingredients-list"></div>
         </div>
         <div class="modal-footer">
