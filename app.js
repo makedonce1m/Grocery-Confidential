@@ -758,6 +758,7 @@ function openRecipePage(id) {
   state.activeRecipeId = id;
   const recipe = recipeById(id);
   if (!recipe) return;
+  document.getElementById('recipe-page-scroll').scrollTop = 0;
 
   // Photo
   const photoEl = document.getElementById('recipe-page-photo');
@@ -823,9 +824,49 @@ function openRecipePage(id) {
 }
 
 function closeRecipePage() {
-  document.getElementById('recipe-page').classList.remove('open');
+  const page = document.getElementById('recipe-page');
+  page.style.transition = '';
+  page.style.transform  = '';
+  page.classList.remove('open');
   state.activeRecipeId = null;
 }
+
+(function attachSwipeBack() {
+  const page  = document.getElementById('recipe-page');
+  const EDGE  = 30;   // px from left edge to start gesture
+  const THRESHOLD = 80; // px drag needed to trigger close
+  let startX = 0, startY = 0, dragging = false;
+
+  page.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    if (t.clientX > EDGE) return;
+    startX   = t.clientX;
+    startY   = t.clientY;
+    dragging = true;
+    page.style.transition = 'none';
+  }, { passive: true });
+
+  page.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dy) > Math.abs(dx)) { dragging = false; page.style.transition = ''; page.style.transform = ''; return; }
+    if (dx < 0) return;
+    page.style.transform = `translateX(${dx}px)`;
+  }, { passive: true });
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    const current = new DOMMatrix(getComputedStyle(page).transform).m41;
+    page.style.transition = '';
+    page.style.transform  = '';
+    if (current >= THRESHOLD) closeRecipePage();
+  }
+
+  page.addEventListener('touchend',    onEnd, { passive: true });
+  page.addEventListener('touchcancel', onEnd, { passive: true });
+})();
 
 // ── Recipe Form Page ──────────────────────────
 
@@ -833,6 +874,7 @@ function openRecipeFormPage(id = null) {
   state.editingRecipeId = id;
   const recipe = id ? recipeById(id) : null;
   document.getElementById('recipe-form-title').textContent = id ? 'Edit Recipe' : 'New Recipe';
+  document.getElementById('recipe-form-page').querySelector('.recipe-form-scroll').scrollTop = 0;
 
   // Reset / prefill fields
   document.getElementById('rf-name').value     = recipe?.name     || '';
