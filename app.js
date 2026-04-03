@@ -834,6 +834,7 @@ function openRecipeFormPage(id = null) {
   state.editingRecipeId = id;
   const recipe = id ? recipeById(id) : null;
   document.getElementById('recipe-form-title').textContent = id ? 'Edit Recipe' : 'New Recipe';
+  document.getElementById('recipe-form-page').querySelector('.recipe-form-scroll').scrollTop = 0;
 
   // Reset / prefill fields
   document.getElementById('rf-name').value     = recipe?.name     || '';
