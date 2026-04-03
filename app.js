@@ -773,6 +773,75 @@ function renderRecipes() {
   );
 }
 
+function parseTimeToSeconds(numStr, unit) {
+  const nums = numStr.split(/[-–~]/).map(n => parseFloat(n.replace(',', '.').trim())).filter(n => !isNaN(n));
+  const num  = Math.max(...nums);
+  const u    = unit.toLowerCase();
+  if (u.startsWith('hour') || u.startsWith('hr')) return Math.round(num * 3600);
+  if (u.startsWith('sec'))                         return Math.round(num);
+  return Math.round(num * 60);
+}
+
+function highlightTimes(rawText) {
+  return esc(rawText).replace(
+    /((?:~\s*)?\d+(?:[.,]\d+)?(?:\s*[-–~]\s*\d+(?:[.,]\d+)?)?)\s*(minutes?|mins?|hours?|hrs?|seconds?|secs?)/gi,
+    (match, num, unit) => {
+      const secs = parseTimeToSeconds(num, unit);
+      return `<span class="time-link" data-secs="${secs}">${match}</span>`;
+    }
+  );
+}
+
+function openTimerPopup(totalSecs) {
+  document.getElementById('timer-popup-overlay')?.remove();
+  let remaining = totalSecs, intervalId = null, running = false;
+
+  const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+  const overlay = document.createElement('div');
+  overlay.id        = 'timer-popup-overlay';
+  overlay.className = 'timer-popup-overlay';
+  overlay.innerHTML = `
+    <div class="timer-popup">
+      <div class="timer-display" id="timer-display">${fmt(remaining)}</div>
+      <div class="timer-actions">
+        <button class="timer-btn-secondary" id="timer-reset-btn">Reset</button>
+        <button class="timer-btn-primary"   id="timer-start-btn">Start</button>
+        <button class="timer-btn-secondary" id="timer-close-btn">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const display   = overlay.querySelector('#timer-display');
+  const startBtn  = overlay.querySelector('#timer-start-btn');
+
+  const render = () => {
+    display.textContent = fmt(remaining);
+    display.classList.toggle('done', remaining === 0);
+    startBtn.textContent = remaining === 0 ? 'Done!' : (running ? 'Pause' : (remaining < totalSecs ? 'Resume' : 'Start'));
+  };
+
+  const pause = () => { running = false; clearInterval(intervalId); render(); };
+  const reset = () => { pause(); remaining = totalSecs; render(); };
+  const close = () => { clearInterval(intervalId); overlay.remove(); };
+
+  const start = () => {
+    if (remaining === 0) return;
+    running = true; render();
+    intervalId = setInterval(() => {
+      remaining--;
+      render();
+      if (remaining === 0) { running = false; clearInterval(intervalId); }
+    }, 1000);
+  };
+
+  overlay.querySelector('#timer-start-btn').addEventListener('click', () => running ? pause() : start());
+  overlay.querySelector('#timer-reset-btn').addEventListener('click', reset);
+  overlay.querySelector('#timer-close-btn').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  start();
+}
+
 function openRecipePage(id) {
   state.activeRecipeId = id;
   const recipe = recipeById(id);
@@ -818,12 +887,14 @@ function openRecipePage(id) {
   let metaHtml = '';
   if (recipe.tag && !recipe.photo) metaHtml += `<span class="recipe-meta-pill tag">${esc(recipe.tag)}</span>`;
   if (stats.length) {
-    metaHtml += `<div class="recipe-stat-row">${stats.map((s, i) => `
-      ${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
-      <div class="recipe-stat-item">
+    metaHtml += `<div class="recipe-stat-row">${stats.map((s, i) => {
+      const isServings = s.label === 'Serves';
+      return `${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
+      <div class="recipe-stat-item${isServings ? ' tappable' : ''}"${isServings ? ' data-action="edit-servings"' : ''}>
         <div class="recipe-stat-label">${s.label}</div>
-        <div class="recipe-stat-value">${esc(String(s.value))}</div>
-      </div>`).join('')}</div>`;
+        <div class="recipe-stat-value">${esc(String(s.value))}${isServings ? '<span class="recipe-stat-edit">✎</span>' : ''}</div>
+      </div>`;
+    }).join('')}</div>`;
   }
   meta.innerHTML = metaHtml;
 
@@ -832,13 +903,17 @@ function openRecipePage(id) {
   const ingEl      = document.getElementById('recipe-page-ingredients');
   if (recipe.ingredients?.length) {
     ingSection.hidden = false;
-    ingEl.innerHTML = recipe.ingredients.map(ing => {
+    ingEl.innerHTML = recipe.ingredients.map((ing, i) => {
       const amt = ing.amount ? `${ing.amount} ${ing.unit}`.trim() : (ing.unit || '');
-      return `<div class="recipe-ing-row">
+      return `<div class="recipe-ing-row" data-ing-idx="${i}">
         <span class="recipe-ing-name">${esc(ing.itemName)}</span>
         ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
       </div>`;
     }).join('');
+    ingEl.addEventListener('click', e => {
+      const row = e.target.closest('.recipe-ing-row');
+      if (row) row.classList.toggle('done');
+    });
   } else {
     ingSection.hidden = true;
   }
@@ -851,13 +926,57 @@ function openRecipePage(id) {
     instrEl.innerHTML = recipe.instructions.map((step, i) => `
       <div class="instruction-step">
         <div class="step-num">${i + 1}</div>
-        <div class="step-text">${esc(step)}</div>
+        <div class="step-text">${highlightTimes(step)}</div>
       </div>`).join('');
   } else {
     section.hidden = true;
   }
 
   document.getElementById('recipe-page').classList.add('open');
+
+  document.getElementById('recipe-page-meta').addEventListener('click', e => {
+    const el = e.target.closest('[data-action="edit-servings"]');
+    if (el) openServingsPopup();
+  });
+}
+
+function openServingsPopup() {
+  document.getElementById('qty-popup-overlay')?.remove();
+  const recipe = recipeById(state.activeRecipeId);
+  if (!recipe) return;
+
+  const overlay = document.createElement('div');
+  overlay.id        = 'qty-popup-overlay';
+  overlay.className = 'qty-popup-overlay';
+  overlay.innerHTML = `
+    <div class="qty-popup" role="dialog">
+      <div class="qty-popup-label">Serves</div>
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="decimal" min="0.5" step="0.5" value="${recipe.servings || 1}">
+      <div class="qty-popup-actions">
+        <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
+        <button class="qty-popup-ok"  id="qty-popup-ok">Save</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('qty-popup-input');
+  input.focus();
+  input.select();
+
+  const close = () => overlay.remove();
+  const save  = () => {
+    const val = parseFloat(input.value);
+    if (!val || val <= 0) return;
+    recipe.servings = val;
+    saveData();
+    close();
+    openRecipePage(state.activeRecipeId);
+  };
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') close(); });
+  document.getElementById('qty-popup-ok').addEventListener('click', save);
+  document.getElementById('qty-popup-cancel').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
 }
 
 function closeRecipePage() {
@@ -1321,6 +1440,10 @@ function init() {
 
   // ── Recipes: detail page ──────────────────────
   document.getElementById('recipe-back-btn').addEventListener('click', closeRecipePage);
+  document.getElementById('recipe-page-instructions').addEventListener('click', e => {
+    const link = e.target.closest('.time-link');
+    if (link) openTimerPopup(parseInt(link.dataset.secs));
+  });
   document.getElementById('recipe-edit-btn').addEventListener('click', () => {
     openRecipeFormPage(state.activeRecipeId);
   });
