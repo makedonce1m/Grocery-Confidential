@@ -818,12 +818,14 @@ function openRecipePage(id) {
   let metaHtml = '';
   if (recipe.tag && !recipe.photo) metaHtml += `<span class="recipe-meta-pill tag">${esc(recipe.tag)}</span>`;
   if (stats.length) {
-    metaHtml += `<div class="recipe-stat-row">${stats.map((s, i) => `
-      ${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
-      <div class="recipe-stat-item">
+    metaHtml += `<div class="recipe-stat-row">${stats.map((s, i) => {
+      const isServings = s.label === 'Serves';
+      return `${i > 0 ? '<div class="recipe-stat-divider"></div>' : ''}
+      <div class="recipe-stat-item${isServings ? ' tappable' : ''}"${isServings ? ' data-action="edit-servings"' : ''}>
         <div class="recipe-stat-label">${s.label}</div>
-        <div class="recipe-stat-value">${esc(String(s.value))}</div>
-      </div>`).join('')}</div>`;
+        <div class="recipe-stat-value">${esc(String(s.value))}${isServings ? '<span class="recipe-stat-edit">✎</span>' : ''}</div>
+      </div>`;
+    }).join('')}</div>`;
   }
   meta.innerHTML = metaHtml;
 
@@ -858,6 +860,50 @@ function openRecipePage(id) {
   }
 
   document.getElementById('recipe-page').classList.add('open');
+
+  document.getElementById('recipe-page-meta').addEventListener('click', e => {
+    const el = e.target.closest('[data-action="edit-servings"]');
+    if (el) openServingsPopup();
+  });
+}
+
+function openServingsPopup() {
+  document.getElementById('qty-popup-overlay')?.remove();
+  const recipe = recipeById(state.activeRecipeId);
+  if (!recipe) return;
+
+  const overlay = document.createElement('div');
+  overlay.id        = 'qty-popup-overlay';
+  overlay.className = 'qty-popup-overlay';
+  overlay.innerHTML = `
+    <div class="qty-popup" role="dialog">
+      <div class="qty-popup-label">Serves</div>
+      <input id="qty-popup-input" class="qty-popup-input" type="number" inputmode="decimal" min="0.5" step="0.5" value="${recipe.servings || 1}">
+      <div class="qty-popup-actions">
+        <button class="qty-popup-del" id="qty-popup-cancel">Cancel</button>
+        <button class="qty-popup-ok"  id="qty-popup-ok">Save</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('qty-popup-input');
+  input.focus();
+  input.select();
+
+  const close = () => overlay.remove();
+  const save  = () => {
+    const val = parseFloat(input.value);
+    if (!val || val <= 0) return;
+    recipe.servings = val;
+    saveData();
+    close();
+    openRecipePage(state.activeRecipeId);
+  };
+
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') close(); });
+  document.getElementById('qty-popup-ok').addEventListener('click', save);
+  document.getElementById('qty-popup-cancel').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
 }
 
 function closeRecipePage() {

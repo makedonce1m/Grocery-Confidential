@@ -864,6 +864,14 @@ body {
   font-weight: 700;
   color: var(--text);
 }
+.recipe-stat-item.tappable { cursor: pointer; }
+.recipe-stat-item.tappable:active { background: var(--surface-2); }
+.recipe-stat-edit {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-left: 4px;
+  vertical-align: middle;
+}
 
 .recipe-page-section { margin-bottom: 24px; }
 .recipe-section-title {
