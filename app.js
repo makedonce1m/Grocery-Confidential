@@ -773,6 +773,75 @@ function renderRecipes() {
   );
 }
 
+function parseTimeToSeconds(numStr, unit) {
+  const nums = numStr.split(/[-–~]/).map(n => parseFloat(n.replace(',', '.').trim())).filter(n => !isNaN(n));
+  const num  = Math.max(...nums);
+  const u    = unit.toLowerCase();
+  if (u.startsWith('hour') || u.startsWith('hr')) return Math.round(num * 3600);
+  if (u.startsWith('sec'))                         return Math.round(num);
+  return Math.round(num * 60);
+}
+
+function highlightTimes(rawText) {
+  return esc(rawText).replace(
+    /((?:~\s*)?\d+(?:[.,]\d+)?(?:\s*[-–~]\s*\d+(?:[.,]\d+)?)?)\s*(minutes?|mins?|hours?|hrs?|seconds?|secs?)/gi,
+    (match, num, unit) => {
+      const secs = parseTimeToSeconds(num, unit);
+      return `<span class="time-link" data-secs="${secs}">${match}</span>`;
+    }
+  );
+}
+
+function openTimerPopup(totalSecs) {
+  document.getElementById('timer-popup-overlay')?.remove();
+  let remaining = totalSecs, intervalId = null, running = false;
+
+  const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+  const overlay = document.createElement('div');
+  overlay.id        = 'timer-popup-overlay';
+  overlay.className = 'timer-popup-overlay';
+  overlay.innerHTML = `
+    <div class="timer-popup">
+      <div class="timer-display" id="timer-display">${fmt(remaining)}</div>
+      <div class="timer-actions">
+        <button class="timer-btn-secondary" id="timer-reset-btn">Reset</button>
+        <button class="timer-btn-primary"   id="timer-start-btn">Start</button>
+        <button class="timer-btn-secondary" id="timer-close-btn">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const display   = overlay.querySelector('#timer-display');
+  const startBtn  = overlay.querySelector('#timer-start-btn');
+
+  const render = () => {
+    display.textContent = fmt(remaining);
+    display.classList.toggle('done', remaining === 0);
+    startBtn.textContent = remaining === 0 ? 'Done!' : (running ? 'Pause' : (remaining < totalSecs ? 'Resume' : 'Start'));
+  };
+
+  const pause = () => { running = false; clearInterval(intervalId); render(); };
+  const reset = () => { pause(); remaining = totalSecs; render(); };
+  const close = () => { clearInterval(intervalId); overlay.remove(); };
+
+  const start = () => {
+    if (remaining === 0) return;
+    running = true; render();
+    intervalId = setInterval(() => {
+      remaining--;
+      render();
+      if (remaining === 0) { running = false; clearInterval(intervalId); }
+    }, 1000);
+  };
+
+  overlay.querySelector('#timer-start-btn').addEventListener('click', () => running ? pause() : start());
+  overlay.querySelector('#timer-reset-btn').addEventListener('click', reset);
+  overlay.querySelector('#timer-close-btn').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  start();
+}
+
 function openRecipePage(id) {
   state.activeRecipeId = id;
   const recipe = recipeById(id);
@@ -853,7 +922,7 @@ function openRecipePage(id) {
     instrEl.innerHTML = recipe.instructions.map((step, i) => `
       <div class="instruction-step">
         <div class="step-num">${i + 1}</div>
-        <div class="step-text">${esc(step)}</div>
+        <div class="step-text">${highlightTimes(step)}</div>
       </div>`).join('');
   } else {
     section.hidden = true;
@@ -1367,6 +1436,10 @@ function init() {
 
   // ── Recipes: detail page ──────────────────────
   document.getElementById('recipe-back-btn').addEventListener('click', closeRecipePage);
+  document.getElementById('recipe-page-instructions').addEventListener('click', e => {
+    const link = e.target.closest('.time-link');
+    if (link) openTimerPopup(parseInt(link.dataset.secs));
+  });
   document.getElementById('recipe-edit-btn').addEventListener('click', () => {
     openRecipeFormPage(state.activeRecipeId);
   });
