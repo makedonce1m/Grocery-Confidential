@@ -1448,14 +1448,28 @@ function init() {
     localStorage.setItem('gc_theme', isLight ? 'light' : 'dark');
   });
 
-  // ── Tag filter ────────────────────────────────
-  document.getElementById('tag-filter-bar').addEventListener('click', e => {
-    const pill = e.target.closest('.tag-filter-pill');
-    if (!pill) return;
-    state.recipeTagFilter = pill.dataset.tag;
-    document.querySelectorAll('.tag-filter-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
+  // ── Tag filter dropdown ───────────────────────
+  const filterBtn      = document.getElementById('recipe-filter-btn');
+  const filterDropdown = document.getElementById('recipe-filter-dropdown');
+  const filterWrap     = document.getElementById('recipe-filter-wrap');
+
+  filterBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    filterDropdown.hidden = !filterDropdown.hidden;
+  });
+  filterDropdown.addEventListener('click', e => {
+    const opt = e.target.closest('.recipe-filter-option');
+    if (!opt) return;
+    state.recipeTagFilter = opt.dataset.tag;
+    filterDropdown.querySelectorAll('.recipe-filter-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    const label = opt.dataset.tag === 'all' ? 'All' : opt.textContent;
+    filterBtn.textContent = label;
+    filterDropdown.hidden = true;
     renderRecipes();
+  });
+  document.addEventListener('click', e => {
+    if (!filterWrap.contains(e.target)) filterDropdown.hidden = true;
   });
 
   // ── Recipes: list buttons ─────────────────────
