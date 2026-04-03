@@ -722,7 +722,7 @@ function renderRecipes() {
     const timeStr = fmtTime(total);
     const photo = r.photo
       ? `<img src="${r.photo}" alt="${esc(r.name)}">`
-      : `<div class="recipe-card-photo-placeholder">No photo</div>`;
+      : `<div class="recipe-card-photo-placeholder"></div>`;
     return `<div class="recipe-card" data-recipe-id="${esc(r.id)}">
       <div class="recipe-card-photo">${photo}</div>
       <div class="recipe-card-info">
