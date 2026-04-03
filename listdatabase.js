@@ -158,12 +158,12 @@ const DEFAULT_ITEMS = [
   { id: 'con14', name: 'Sriracha Mayo',           categoryId: 'condiments', unit: '' },
   { id: 'con15', name: 'Tomato Paste',            categoryId: 'condiments', unit: '' },
   { id: 'con16', name: 'Truffle Mayo',            categoryId: 'condiments', unit: '' },
-  { id: 'con17', name: 'Water',                  categoryId: 'condiments', unit: '' },
+  { id: 'con17', name: 'Water',                  categoryId: 'condiments', unit: '', pantry: true  },
   { id: 'con18', name: 'Worcestershire Sauce',   categoryId: 'condiments', unit: '' },
   // ── Herbs & Powders ──────────────────────────
   { id: 'her01', name: 'Basil',                          categoryId: 'herbs', unit: '' },
   { id: 'her02', name: 'Bay Leaves',                     categoryId: 'herbs', unit: '' },
-  { id: 'her03', name: 'Black Pepper',                   categoryId: 'herbs', unit: '' },
+  { id: 'her03', name: 'Black Pepper',                   categoryId: 'herbs', unit: '', pantry: true  },
   { id: 'her04', name: 'Burrito Kruidenmix Santa Maria', categoryId: 'herbs', unit: '' },
   { id: 'her05', name: 'Chili Con Carne',                categoryId: 'herbs', unit: '' },
   { id: 'her06', name: 'Garam Masala',                   categoryId: 'herbs', unit: '' },
@@ -174,7 +174,7 @@ const DEFAULT_ITEMS = [
   { id: 'her11', name: 'PB2',                            categoryId: 'herbs', unit: '' },
   { id: 'her12', name: 'Red Pepper Flakes',              categoryId: 'herbs', unit: '' },
   { id: 'her13', name: 'Rosemary',                       categoryId: 'herbs', unit: '' },
-  { id: 'her14', name: 'Salt',                           categoryId: 'herbs', unit: '' },
+  { id: 'her14', name: 'Salt',                           categoryId: 'herbs', unit: '', pantry: true  },
   { id: 'her15', name: 'Thyme',                          categoryId: 'herbs', unit: '' },
   // ── Baking ───────────────────────────────────
   { id: 'bak01', name: 'Chocolate Chips',  categoryId: 'baking', unit: '' },

@@ -275,6 +275,26 @@ body {
   font-size: 14px;
   font-weight: 700;
 }
+.pantry-btn {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: color .14s, border-color .14s, background .14s;
+}
+.pantry-btn:active { transform: scale(.86); }
+.pantry-btn.active {
+  color: var(--green);
+  border-color: var(--green);
+  background: rgba(245,158,11,.1);
+}
 
 /* ── Header actions ── */
 .header-actions { display: flex; gap: 8px; align-items: center; }
