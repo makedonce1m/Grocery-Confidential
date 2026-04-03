@@ -852,8 +852,9 @@ function closeRecipePage() {
     const dy = e.touches[0].clientY - startY;
     if (Math.abs(dy) > Math.abs(dx)) { dragging = false; page.style.transition = ''; page.style.transform = ''; return; }
     if (dx < 0) return;
+    e.preventDefault();
     page.style.transform = `translateX(${dx}px)`;
-  }, { passive: true });
+  }, { passive: false });
 
   function onEnd() {
     if (!dragging) return;
