@@ -20,10 +20,10 @@
   --r-md:        14px;
   --r-lg:        22px;
   --r-full:      9999px;
-  --shadow-sm:   0 1px 4px rgba(0,0,0,.5);
+  --shadow-sm:   0 2px 6px rgba(0,0,0,.4);
   --shadow-md:   0 4px 14px rgba(0,0,0,.6);
-  --shadow-btn:  0 4px 0 rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.4);
-  --shadow-card: 0 4px 12px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
+  --shadow-btn:  0 3px 10px rgba(0,0,0,.45);
+  --shadow-card: 0 4px 14px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.35);
   --nav-h:       72px;
   --hdr-h:       60px;
   --safe-b:      env(safe-area-inset-bottom, 0px);
@@ -40,10 +40,10 @@ html.light {
   --text-2:      #636366;
   --text-3:      #AEAEB2;
   --border:      #D1D1D6;
-  --shadow-sm:   0 1px 4px rgba(0,0,0,.10);
+  --shadow-sm:   0 2px 6px rgba(0,0,0,.10);
   --shadow-md:   0 4px 14px rgba(0,0,0,.14);
-  --shadow-btn:  0 4px 0 rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.12);
-  --shadow-card: 0 4px 12px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.08);
+  --shadow-btn:  0 3px 10px rgba(0,0,0,.14);
+  --shadow-card: 0 4px 14px rgba(0,0,0,.12), 0 1px 3px rgba(0,0,0,.08);
 }
 
 /* ── Per-tag color tokens ── */
@@ -117,7 +117,6 @@ body {
 .header-btn {
   background: var(--green);
   border: none;
-  border-bottom: 3px solid var(--green-dk);
   color: #000;
   padding: 8px 16px;
   border-radius: var(--r-full);
@@ -126,17 +125,15 @@ body {
   cursor: pointer;
   font-family: var(--font);
   box-shadow: var(--shadow-btn);
-  transition: transform .1s, box-shadow .1s, border-bottom-width .1s;
+  transition: opacity .15s, box-shadow .15s;
 }
 .header-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 3px rgba(0,0,0,.3);
-  border-bottom-width: 1px;
+  opacity: .8;
+  box-shadow: var(--shadow-sm);
 }
 .theme-toggle-btn {
   background: var(--surface-2);
   border: 1.5px solid var(--border);
-  border-bottom: 3px solid var(--border);
   color: var(--text-2);
   box-shadow: var(--shadow-sm);
 }
@@ -302,7 +299,6 @@ body {
   background: var(--surface-2);
   color: var(--text-2);
   border: 1.5px solid var(--border);
-  border-bottom: 3px solid var(--border);
   font-size: 22px;
   font-weight: 300;
   line-height: 1;
@@ -311,25 +307,23 @@ body {
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform .1s, box-shadow .1s, border-bottom-width .1s;
+  transition: opacity .15s, box-shadow .15s;
   font-family: var(--font);
   box-shadow: var(--shadow-sm);
 }
-.add-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+.add-btn:active { opacity: .7; }
 .add-btn.in-list {
   background: var(--green);
   border-color: var(--green-dk);
-  border-bottom-color: var(--green-dk);
   color: #000;
   font-size: 16px;
   font-weight: 700;
-  box-shadow: 0 3px 0 var(--green-dk), 0 2px 6px rgba(245,158,11,.3);
+  box-shadow: 0 2px 8px rgba(245,158,11,.35);
 }
 .pantry-btn {
   width: 30px; height: 30px;
   border-radius: 8px;
   border: 1.5px solid var(--border);
-  border-bottom: 3px solid var(--border);
   background: var(--surface-2);
   color: var(--text-3);
   display: flex;
@@ -339,15 +333,14 @@ body {
   cursor: pointer;
   margin-right: 6px;
   box-shadow: var(--shadow-sm);
-  transition: transform .1s, border-bottom-width .1s, color .14s, border-color .14s, background .14s;
+  transition: opacity .15s, color .14s, border-color .14s, background .14s, box-shadow .14s;
 }
-.pantry-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+.pantry-btn:active { opacity: .7; }
 .pantry-btn.active {
   color: var(--green);
-  border-color: var(--green-dk);
-  border-bottom-color: var(--green-dk);
+  border-color: var(--green);
   background: rgba(245,158,11,.12);
-  box-shadow: 0 3px 0 var(--green-dk);
+  box-shadow: 0 2px 8px rgba(245,158,11,.3);
 }
 
 /* ── Tag filter bar ── */
@@ -372,24 +365,19 @@ body {
   border-radius: var(--r-full);
   background: var(--surface-2);
   border: 1.5px solid var(--border);
-  border-bottom: 3px solid var(--border);
   color: var(--text-2);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font);
-  transition: transform .1s, box-shadow .1s, border-bottom-width .1s;
+  transition: opacity .15s, box-shadow .15s;
   white-space: nowrap;
   box-shadow: var(--shadow-sm);
 }
-.tag-filter-pill:active {
-  transform: translateY(2px);
-  border-bottom-width: 1px;
-}
+.tag-filter-pill:active { opacity: .75; }
 .tag-filter-pill.active {
   background: var(--green);
   border-color: var(--green-dk);
-  border-bottom-color: var(--green-dk);
   color: #000;
   box-shadow: var(--shadow-btn);
 }
@@ -718,32 +706,30 @@ body {
   background: var(--green);
   color: #000;
   border: none;
-  border-bottom: 3px solid var(--green-dk);
   border-radius: var(--r-md);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font);
   box-shadow: var(--shadow-btn);
-  transition: transform .1s, box-shadow .1s, border-bottom-width .1s;
+  transition: opacity .15s, box-shadow .15s;
 }
-.btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 3px rgba(0,0,0,.2); border-bottom-width: 1px; }
+.btn-primary:active { opacity: .8; box-shadow: var(--shadow-sm); }
 .btn-secondary {
   flex: 1;
   padding: 14px;
   background: var(--surface-2);
   color: var(--text-2);
   border: 1.5px solid var(--border);
-  border-bottom: 3px solid var(--border);
   border-radius: var(--r-md);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font);
   box-shadow: var(--shadow-sm);
-  transition: transform .1s, border-bottom-width .1s;
+  transition: opacity .15s;
 }
-.btn-secondary:active { transform: translateY(2px); border-bottom-width: 1px; }
+.btn-secondary:active { opacity: .7; }
 
 /* ── Toast ── */
 .toast {
@@ -1142,7 +1128,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 8px;
 }
 .recipe-card {
   background: var(--surface);
