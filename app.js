@@ -1054,7 +1054,7 @@ function renderAtgSheet() {
   const recipe = recipeById(state.atgRecipeId);
   if (!recipe) return;
   const scale = state.atgServings / (recipe.servings || 1);
-  document.getElementById('atg-servings-val').textContent = state.atgServings;
+  document.getElementById('atg-servings-select').value = state.atgServings;
 
   document.getElementById('atg-ingredients-list').innerHTML = recipe.ingredients.map((ing, i) => {
     const checked = state.atgChecked.has(i);
@@ -1101,6 +1101,7 @@ function switchView(view) {
   document.getElementById(`nav-${view}`).classList.add('active');
   if (view === 'grocery') renderGrocery();
   if (view === 'recipes') renderRecipes();
+  if (view === 'items') renderItems();
 }
 
 // ══════════════════════════════════════════════
@@ -1157,6 +1158,7 @@ function init() {
   // Initial render
   renderPills();
   renderRecipes();
+  renderItems();
   updateBadge();
 
   // ── Category dropdown ────────────────────────
@@ -1367,13 +1369,8 @@ function init() {
   });
 
   // ── Add to Grocery sheet ──────────────────────
-  document.getElementById('atg-servings-minus').addEventListener('click', () => {
-    if (state.atgServings <= 1) return;
-    state.atgServings--;
-    renderAtgSheet();
-  });
-  document.getElementById('atg-servings-plus').addEventListener('click', () => {
-    state.atgServings++;
+  document.getElementById('atg-servings-select').addEventListener('change', e => {
+    state.atgServings = parseFloat(e.target.value);
     renderAtgSheet();
   });
   document.getElementById('atg-confirm-btn').addEventListener('click', () => {
