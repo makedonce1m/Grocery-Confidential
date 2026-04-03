@@ -895,6 +895,7 @@ function openRecipeFormPage(id = null) {
     // Populate URL field if photo is a URL (not base64)
     urlInput.value = recipe.photo.startsWith('data:') ? '' : recipe.photo;
   } else {
+    preview.src = '';
     preview.hidden = true;
     photoBtn.textContent = '+ Add Photo';
     urlInput.value = '';
