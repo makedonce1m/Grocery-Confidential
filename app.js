@@ -25,6 +25,7 @@ const state = {
   atgRecipeId:        null,
   atgServings:        1,
   atgChecked:         new Set(),
+  pantryItemIds:      new Set(),
 };
 
 // ══════════════════════════════════════════════
@@ -41,6 +42,7 @@ function saveData() {
     deletedItemIds:     state.deletedItemIds,
     deletedCategoryIds: state.deletedCategoryIds,
     recipes:            state.recipes,
+    pantryItemIds:      [...state.pantryItemIds],
   };
   try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
   catch (e) { console.warn('Could not save:', e); }
@@ -62,8 +64,9 @@ function loadData() {
   const delItems = new Set(state.deletedItemIds);
   const delCats  = new Set(state.deletedCategoryIds);
 
-  state.categories  = DEFAULT_CATEGORIES.filter(c => !delCats.has(c.id)).map(c => ({ ...c }));
-  state.items       = DEFAULT_ITEMS.filter(i => !delItems.has(i.id)).map(i => ({ ...i }));
+  state.categories   = DEFAULT_CATEGORIES.filter(c => !delCats.has(c.id)).map(c => ({ ...c }));
+  state.items        = DEFAULT_ITEMS.filter(i => !delItems.has(i.id)).map(i => ({ ...i }));
+  state.pantryItemIds = new Set(DEFAULT_ITEMS.filter(i => i.pantry).map(i => i.id));
   state.groceryList = [];
   state.recipes     = SEED_RECIPES.map(r => ({ ...r })); // overwritten below if localStorage has recipes
 
@@ -95,6 +98,9 @@ function loadData() {
     } else {
       state.recipes = SEED_RECIPES.map(r => ({ ...r }));
     }
+
+    if (Array.isArray(data.pantryItemIds))
+      state.pantryItemIds = new Set(data.pantryItemIds);
 
   } catch (e) {
     console.warn('Could not load saved data:', e);
@@ -618,20 +624,33 @@ function renderItems() {
       deleteItem(btn.dataset.delItem);
     })
   );
+
+  list.querySelectorAll('.pantry-btn').forEach(btn =>
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.pantryItem;
+      state.pantryItemIds.has(id) ? state.pantryItemIds.delete(id) : state.pantryItemIds.add(id);
+      saveData();
+      renderItems();
+    })
+  );
 }
 
 function itemCard(item, cat) {
-  const inList = !!groceryByItemId(item.id);
-  const emoji  = cat ? cat.emoji : '📦';
-  const tag    = cat ? cat.name  : '';
+  const inList   = !!groceryByItemId(item.id);
+  const isPantry = state.pantryItemIds.has(item.id);
   const actionBtn = state.editMode
     ? `<button class="trash-btn" data-del-item="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">✕</button>`
     : `<button class="add-btn${inList ? ' in-list' : ''}" data-item-id="${esc(item.id)}" aria-label="Add to grocery list">${inList ? '✓' : '+'}</button>`;
+  const pantryBtn = state.editMode ? '' :
+    `<button class="pantry-btn${isPantry ? ' active' : ''}" data-pantry-item="${esc(item.id)}" aria-label="Toggle pantry staple" title="Pantry staple">
+      <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5.5L6.5 1L12 5.5V11H8.5V7.5H4.5V11H1V5.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    </button>`;
   return `<div class="item-card">
     <div class="item-info">
       <span class="item-name">${esc(item.name)}</span>${item.unit ? `<span class="item-unit">${esc(item.unit)}</span>` : ''}
     </div>
-    ${actionBtn}
+    ${pantryBtn}${actionBtn}
   </div>`;
 }
 
@@ -1044,7 +1063,15 @@ function openAddToGrocerySheet(recipeId) {
   if (!recipe) return;
   state.atgRecipeId = recipeId;
   state.atgServings = recipe.servings || 1;
-  state.atgChecked  = new Set(recipe.ingredients.map((_, i) => i));
+  const pantryNames = new Set(
+    state.items.filter(i => state.pantryItemIds.has(i.id)).map(i => i.name.toLowerCase())
+  );
+  state.atgChecked = new Set(
+    recipe.ingredients
+      .map((ing, i) => ({ ing, i }))
+      .filter(({ ing }) => !pantryNames.has(ing.itemName.toLowerCase()))
+      .map(({ i }) => i)
+  );
   document.getElementById('atg-recipe-name').textContent = recipe.name;
   renderAtgSheet();
   openModal('modal-add-to-grocery');
