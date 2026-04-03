@@ -1128,7 +1128,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 8px;
 }
 .recipe-card {
   background: var(--surface);
