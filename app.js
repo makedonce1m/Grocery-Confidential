@@ -85,10 +85,16 @@ function loadData() {
     if (Array.isArray(data.groceryList))
       state.groceryList = data.groceryList;
 
-    if (Array.isArray(data.recipes))
+    if (Array.isArray(data.recipes)) {
       state.recipes = data.recipes;
-    else
+      // Merge in any new seed recipes not yet in localStorage
+      SEED_RECIPES.forEach(seed => {
+        if (!state.recipes.find(r => r.id === seed.id))
+          state.recipes.push({ ...seed });
+      });
+    } else {
       state.recipes = SEED_RECIPES.map(r => ({ ...r }));
+    }
 
   } catch (e) {
     console.warn('Could not load saved data:', e);
