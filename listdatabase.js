@@ -168,7 +168,7 @@ const DEFAULT_ITEMS = [
   { id: 'her05', name: 'Chili Con Carne',                categoryId: 'herbs', unit: '' },
   { id: 'her06', name: 'Garam Masala',                   categoryId: 'herbs', unit: '' },
   { id: 'her07', name: 'Garlic Powder',                  categoryId: 'herbs', unit: '' },
-  { id: 'her08', name: 'MSG',                            categoryId: 'herbs', unit: '' },
+  { id: 'her08', name: 'MSG',                            categoryId: 'herbs', unit: '', pantry: true },
   { id: 'her09', name: 'Onion Powder',                   categoryId: 'herbs', unit: '' },
   { id: 'her10', name: 'Parsley',                        categoryId: 'herbs', unit: '' },
   { id: 'her11', name: 'PB2',                            categoryId: 'herbs', unit: '' },

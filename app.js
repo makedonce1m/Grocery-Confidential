@@ -19,6 +19,7 @@ const state = {
   // Recipes
   recipes:            [],
   recipeSort:         'favourites', // favourites | alpha | recent
+  recipeTagFilter:    'all',
   activeRecipeId:     null,
   editingRecipeId:    null,
   // Add-to-grocery sheet
@@ -118,7 +119,9 @@ function groceryByItemId(itemId) { return state.groceryList.find(g => g.itemId =
 function groceryById(id)         { return state.groceryList.find(g => g.id === id); }
 
 function sortedRecipes() {
-  const list = [...state.recipes];
+  let list = [...state.recipes];
+  if (state.recipeTagFilter !== 'all')
+    list = list.filter(r => r.tag === state.recipeTagFilter);
   if (state.recipeSort === 'alpha')
     return list.sort((a, b) => a.name.localeCompare(b.name));
   if (state.recipeSort === 'recent')
@@ -747,7 +750,7 @@ function renderRecipes() {
       <div class="recipe-card-info">
         <div class="recipe-card-name">${esc(r.name)}</div>
         <div class="recipe-card-meta">
-          ${r.tag ? `<span class="recipe-card-tag">${esc(r.tag)}</span>` : ''}
+          ${r.tag ? `<span class="recipe-card-tag" data-tag="${esc(r.tag)}">${esc(r.tag)}</span>` : ''}
           <div class="recipe-card-actions">
             <button class="recipe-card-fav${r.favourite ? ' active' : ''}" data-fav-id="${esc(r.id)}" aria-label="Favourite">
               ${r.favourite ? '♥' : '♡'}
@@ -865,6 +868,7 @@ function openRecipePage(id) {
   const tagOverlay = document.getElementById('recipe-page-tag-overlay');
   if (recipe.tag && recipe.photo) {
     tagOverlay.textContent = recipe.tag;
+    tagOverlay.dataset.tag = recipe.tag;
     tagOverlay.hidden = false;
   } else {
     tagOverlay.hidden = true;
@@ -1434,6 +1438,26 @@ function init() {
     if (e.key === 'Enter') document.getElementById('confirm-add-category').click();
   });
 
+  // ── Theme toggle ──────────────────────────────
+  const savedTheme = localStorage.getItem('gc_theme') || 'dark';
+  if (savedTheme === 'light') document.documentElement.classList.add('light');
+  document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? '☾' : '☀';
+  document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.getElementById('theme-toggle-btn').textContent = isLight ? '☾' : '☀';
+    localStorage.setItem('gc_theme', isLight ? 'light' : 'dark');
+  });
+
+  // ── Tag filter ────────────────────────────────
+  document.getElementById('tag-filter-bar').addEventListener('click', e => {
+    const pill = e.target.closest('.tag-filter-pill');
+    if (!pill) return;
+    state.recipeTagFilter = pill.dataset.tag;
+    document.querySelectorAll('.tag-filter-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    renderRecipes();
+  });
+
   // ── Recipes: list buttons ─────────────────────
   document.getElementById('add-recipe-btn').addEventListener('click', () => openRecipeFormPage());
   document.getElementById('empty-add-recipe-btn').addEventListener('click', () => openRecipeFormPage());
@@ -1447,8 +1471,12 @@ function init() {
   });
   document.getElementById('recipe-page-ingredients').addEventListener('click', e => {
     const row = e.target.closest('.recipe-ing-row');
-    if (!row || row.classList.contains('pressing')) return;
-    if (row.classList.contains('done')) { row.classList.remove('done'); return; }
+    if (!row || row.classList.contains('pressing') || row.classList.contains('undoing')) return;
+    if (row.classList.contains('done')) {
+      row.classList.add('undoing');
+      setTimeout(() => { row.classList.remove('done', 'undoing'); }, 200);
+      return;
+    }
     row.classList.add('pressing');
     setTimeout(() => { row.classList.remove('pressing'); row.classList.add('done'); }, 180);
   });
