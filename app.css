@@ -983,6 +983,10 @@ body {
   gap: 12px;
 }
 .recipe-ing-row:last-child { border-bottom: none; }
+.recipe-ing-row { cursor: pointer; transition: opacity .15s; }
+.recipe-ing-row.done { opacity: .4; }
+.recipe-ing-row.done .recipe-ing-name,
+.recipe-ing-row.done .recipe-ing-amt { text-decoration: line-through; }
 .recipe-ing-name { font-size: 15px; color: var(--text); }
 .recipe-ing-amt  { font-size: 14px; color: var(--text-2); white-space: nowrap; }
 

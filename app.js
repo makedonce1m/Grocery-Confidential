@@ -903,13 +903,17 @@ function openRecipePage(id) {
   const ingEl      = document.getElementById('recipe-page-ingredients');
   if (recipe.ingredients?.length) {
     ingSection.hidden = false;
-    ingEl.innerHTML = recipe.ingredients.map(ing => {
+    ingEl.innerHTML = recipe.ingredients.map((ing, i) => {
       const amt = ing.amount ? `${ing.amount} ${ing.unit}`.trim() : (ing.unit || '');
-      return `<div class="recipe-ing-row">
+      return `<div class="recipe-ing-row" data-ing-idx="${i}">
         <span class="recipe-ing-name">${esc(ing.itemName)}</span>
         ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
       </div>`;
     }).join('');
+    ingEl.addEventListener('click', e => {
+      const row = e.target.closest('.recipe-ing-row');
+      if (row) row.classList.toggle('done');
+    });
   } else {
     ingSection.hidden = true;
   }
