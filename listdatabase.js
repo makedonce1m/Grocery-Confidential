@@ -338,7 +338,7 @@ const SEED_RECIPES = [
     servings:     4,
     createdAt:    1700000002000,
     ingredients:  [
-      { itemName: 'Russet Potatoes',      amount: 500,  unit: 'g'      },
+      { itemName: 'Russet Potatoes',      amount: 700,  unit: 'g'      },
       { itemName: 'Parmigiano',           amount: 100,  unit: 'g'      },
       { itemName: 'Heavy Cream',          amount: 75,   unit: 'ml'     },
       { itemName: 'Butter',               amount: 40,   unit: 'g'      },

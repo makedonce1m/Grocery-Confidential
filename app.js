@@ -910,10 +910,6 @@ function openRecipePage(id) {
         ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
       </div>`;
     }).join('');
-    ingEl.addEventListener('click', e => {
-      const row = e.target.closest('.recipe-ing-row');
-      if (row) row.classList.toggle('done');
-    });
   } else {
     ingSection.hidden = true;
   }
@@ -967,6 +963,11 @@ function openServingsPopup() {
   const save  = () => {
     const val = parseFloat(input.value);
     if (!val || val <= 0) return;
+    const scale = val / (recipe.servings || 1);
+    recipe.ingredients = recipe.ingredients.map(ing => ({
+      ...ing,
+      amount: ing.amount ? Math.round(ing.amount * scale * 100) / 100 : ing.amount,
+    }));
     recipe.servings = val;
     saveData();
     close();
@@ -1443,6 +1444,10 @@ function init() {
   document.getElementById('recipe-page-instructions').addEventListener('click', e => {
     const link = e.target.closest('.time-link');
     if (link) openTimerPopup(parseInt(link.dataset.secs));
+  });
+  document.getElementById('recipe-page-ingredients').addEventListener('click', e => {
+    const row = e.target.closest('.recipe-ing-row');
+    if (row) row.classList.toggle('done');
   });
   document.getElementById('recipe-edit-btn').addEventListener('click', () => {
     openRecipeFormPage(state.activeRecipeId);
