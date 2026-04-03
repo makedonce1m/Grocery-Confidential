@@ -1447,7 +1447,10 @@ function init() {
   });
   document.getElementById('recipe-page-ingredients').addEventListener('click', e => {
     const row = e.target.closest('.recipe-ing-row');
-    if (row) row.classList.toggle('done');
+    if (!row || row.classList.contains('pressing')) return;
+    if (row.classList.contains('done')) { row.classList.remove('done'); return; }
+    row.classList.add('pressing');
+    setTimeout(() => { row.classList.remove('pressing'); row.classList.add('done'); }, 280);
   });
   document.getElementById('recipe-edit-btn').addEventListener('click', () => {
     openRecipeFormPage(state.activeRecipeId);
