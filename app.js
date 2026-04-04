@@ -908,6 +908,23 @@ function openTimerPopup(totalSecs) {
   start();
 }
 
+function renderRecipeIngredients(recipe) {
+  const ingSection = document.getElementById('recipe-page-ingredients-section');
+  const ingEl      = document.getElementById('recipe-page-ingredients');
+  if (recipe.ingredients?.length) {
+    ingSection.hidden = false;
+    ingEl.innerHTML = recipe.ingredients.map((ing, i) => {
+      const amt = fmtAmt(ing.amount, ing.unit);
+      return `<div class="recipe-ing-row" data-ing-idx="${i}">
+        <span class="recipe-ing-name">${esc(ing.itemName)}</span>
+        ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
+      </div>`;
+    }).join('');
+  } else {
+    ingSection.hidden = true;
+  }
+}
+
 function openRecipePage(id) {
   state.activeRecipeId = id;
   const recipe = recipeById(id);
@@ -966,20 +983,7 @@ function openRecipePage(id) {
   meta.innerHTML = metaHtml;
 
   // Ingredients
-  const ingSection = document.getElementById('recipe-page-ingredients-section');
-  const ingEl      = document.getElementById('recipe-page-ingredients');
-  if (recipe.ingredients?.length) {
-    ingSection.hidden = false;
-    ingEl.innerHTML = recipe.ingredients.map((ing, i) => {
-      const amt = fmtAmt(ing.amount, ing.unit);
-      return `<div class="recipe-ing-row" data-ing-idx="${i}">
-        <span class="recipe-ing-name">${esc(ing.itemName)}</span>
-        ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
-      </div>`;
-    }).join('');
-  } else {
-    ingSection.hidden = true;
-  }
+  renderRecipeIngredients(recipe);
 
   // Instructions
   const instrEl = document.getElementById('recipe-page-instructions');
@@ -1598,10 +1602,12 @@ function init() {
   });
   document.getElementById('recipe-units-btn').addEventListener('click', () => {
     state.unitSystem = state.unitSystem === 'metric' ? 'us' : 'metric';
-    document.getElementById('recipe-units-btn').textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
-    document.getElementById('units-toggle-btn').textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
+    const label = state.unitSystem === 'metric' ? 'Metric' : 'US';
+    document.getElementById('recipe-units-btn').textContent = label;
+    document.getElementById('units-toggle-btn').textContent = label;
     saveData();
-    if (state.activeRecipeId) openRecipePage(state.activeRecipeId);
+    const recipe = recipeById(state.activeRecipeId);
+    if (recipe) renderRecipeIngredients(recipe);
     renderGrocery();
   });
 

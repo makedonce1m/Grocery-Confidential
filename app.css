@@ -1010,9 +1010,9 @@ body {
 }
 .recipe-page-actions .btn-primary { flex: 1; }
 .recipe-units-btn {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   padding: 14px 18px;
-  min-width: 74px;
+  touch-action: manipulation;
 }
 .recipe-page-section { margin-bottom: 24px; }
 .recipe-section-title {
