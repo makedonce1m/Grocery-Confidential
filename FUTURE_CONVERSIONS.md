@@ -1,86 +1,101 @@
 # Unit Conversions — Design Notes
 
-## Concept
-A standalone conversions file (`conversions.js` or similar) that the app can call
-whenever it needs to convert between units. Two use cases:
+## Unit Table
 
-1. **Automatic merging** — when two recipes both need "milk" but one says 200ml and
-   the other says 1 cup, the app looks up the conversion and combines them into one
-   grocery entry.
-
-2. **Interactive converter** — a small tool the user can open to ask "how much is
-   this in that?", e.g. "2 cups → how many ml?"
-
----
-
-## Unit Groups
-
-### Volume
-| Unit       | Base (ml) |
-|------------|-----------|
-| ml         | 1         |
-| L          | 1000      |
-| tsp        | 4.92892   |
-| tbsp       | 14.7868   |
-| fl oz      | 29.5735   |
-| cup        | 240       |
-| pint       | 473.176   |
-| quart      | 946.353   |
-| gallon     | 3785.41   |
-
-### Weight
-| Unit       | Base (g)  |
-|------------|-----------|
-| g          | 1         |
-| kg         | 1000      |
-| oz         | 28.3495   |
-| lb         | 453.592   |
-
-### Count / Non-convertible
-Some units can't be converted mathematically — they depend on the ingredient:
-- piece, clove, slice, handful, pinch, bunch, sprig
-
-These should never be auto-merged with volume or weight units.
-If two recipes use incompatible units for the same ingredient, list them separately
-on the grocery list rather than attempting a conversion.
+| Unit    | Type   | System  | Base (g or ml) |
+|---------|--------|---------|----------------|
+| g       | weight | metric  | 1              |
+| kg      | weight | metric  | 1000           |
+| oz      | weight | US      | 28.35          |
+| lb      | weight | US      | 453.59         |
+| ml      | volume | metric  | 1              |
+| L       | volume | metric  | 1000           |
+| fl oz   | volume | US      | 29.57          |
+| cup     | volume | US      | 240            |
+| pint    | volume | US      | 473.18         |
+| quart   | volume | US      | 946.35         |
+| gallon  | volume | US      | 3785.41        |
+| tsp     | spoon  | neutral | —              |
+| tbsp    | spoon  | neutral | —              |
+| piece   | count  | neutral | —              |
+| clove   | count  | neutral | —              |
+| slice   | count  | neutral | —              |
+| handful | count  | neutral | —              |
+| pinch   | count  | neutral | —              |
+| bunch   | count  | neutral | —              |
+| sprig   | count  | neutral | —              |
+| bag     | count  | neutral | —              |
+| pack    | count  | neutral | —              |
+| bottle  | count  | neutral | —              |
+| yolk    | count  | neutral | —              |
+| rib     | count  | neutral | —              |
+| shot    | count  | neutral | —              |
 
 ---
 
-## Conversion Logic (rough idea)
-```
-convert(amount, fromUnit, toUnit):
-  if fromUnit === toUnit → return amount
-  if both units are in the same group (volume or weight):
-    baseValue = amount × baseMultiplier[fromUnit]
-    return baseValue / baseMultiplier[toUnit]
-  else:
-    cannot convert → return null (list separately)
-```
+## What Converts to What
+
+| Metric | US      |
+|--------|---------|
+| g      | oz      |
+| kg     | lb      |
+| ml     | fl oz   |
+| L      | fl oz   |
+| tsp    | tsp     |
+| tbsp   | tbsp    |
+
+Count and spoon units are neutral — they stay the same in both systems.
 
 ---
 
-## Interactive Converter (future UI)
-A small converter tool accessible from the recipe view or a dedicated screen:
-- Pick a unit (e.g. "cup")
-- Enter an amount (e.g. "2")
-- Pick target unit (e.g. "ml")
-- Shows result: "2 cups = 480 ml"
+## Conversion Formulas
 
-Could also auto-detect conversions in instruction text — e.g. if an instruction
-says "add 2 cups (480ml)" it recognises both values.
+### Metric → US
+| Metric | US     | Formula        |
+|--------|--------|----------------|
+| 1 g    | 0.035 oz  | g × 0.035   |
+| 1 kg   | 2.205 lb  | kg × 2.205  |
+| 1 ml   | 0.034 fl oz | ml × 0.034 |
+| 1 L    | 33.814 fl oz | L × 33.814 |
+
+### US → Metric
+| US       | Metric  | Formula              |
+|----------|---------|----------------------|
+| 1 oz     | 28.35 g    | oz × 28.35        |
+| 1 lb     | 453.59 g   | lb × 453.59       |
+| 1 fl oz  | 29.57 ml   | fl oz × 29.57     |
+| 1 cup    | 240 ml     | cup × 240         |
+| 1 pint   | 473.18 ml  | pint × 473.18     |
+| 1 quart  | 946.35 ml  | quart × 946.35    |
+| 1 gallon | 3785.41 ml | gallon × 3785.41  |
 
 ---
 
-## Metric vs US Toggle (future)
-A global setting: "Preferred units — Metric / US"
-- Metric: g, kg, ml, L
-- US: oz, lb, tsp, tbsp, cup, fl oz
+## Rules
 
-When set, recipe amounts display in the preferred system. The conversions file
-handles the translation. Stored in user settings in localStorage.
+- **Metric mode** — display in g, kg, ml, L. Never convert tsp/tbsp to ml.
+- **US mode** — display in oz, lb, fl oz, cup, pint, quart, gallon. Never convert tsp/tbsp to fl oz.
+- **tsp/tbsp** — always stay as tsp/tbsp in both modes. 1 tbsp = 3 tsp for merging purposes.
+- **Count units** — never converted. Listed separately if units differ.
+- **Incompatible units** — if two recipes use weight + volume for the same ingredient, list them separately rather than attempting a conversion.
 
 ---
 
-## Open Questions
-- [ ] Should the converter be a standalone screen, a modal, or inline on the recipe page?
-- [ ] Do we want the metric/US toggle as a global setting from day one, or add it later?
+## Grocery List Merging
+
+- Same ingredient, same unit → merge quantities (200ml + 100ml = 300ml)
+- Same ingredient, metric + metric → convert to same unit then merge
+- Same ingredient, US + US → convert to same unit then merge
+- Same ingredient, metric + US → convert both to base unit, merge, display in user's preferred system
+- Same ingredient, spoon + spoon → merge (2 tsp + 1 tbsp = 5 tsp)
+- Same ingredient, count + anything → list separately
+
+---
+
+## Settings
+
+A toggle in the Settings sheet: **Metric / US**
+- Stored in localStorage as `gc_units`
+- Affects how recipe ingredient amounts are displayed
+- Affects how grocery list quantities are shown
+- Does not change the stored data — conversion happens at display time
