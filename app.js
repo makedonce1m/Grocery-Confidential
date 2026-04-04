@@ -1507,7 +1507,7 @@ function init() {
   });
 
   // ── Theme (restored on load) ──────────────────
-  const savedTheme = localStorage.getItem('gc_theme') || 'dark';
+  const savedTheme = localStorage.getItem('gc_theme') || 'light';
   if (savedTheme === 'light') document.documentElement.classList.add('light');
   document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? 'Light' : 'Dark';
 
