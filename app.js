@@ -211,7 +211,7 @@ function convertUnit(amount, unit) {
       const floz = base / 29.5735;
       if (floz >= 128) return { amount: smartRound(floz / 128), unit: 'gallon' };
       if (floz >= 32)  return { amount: smartRound(floz / 32),  unit: 'quart' };
-      if (floz >= 8)   return { amount: smartRound(floz / 8),   unit: 'cup' };
+      if (floz >= 2)   return { amount: smartRound(floz / 8),   unit: 'cup' };
       return { amount: smartRound(floz), unit: 'fl oz' };
     }
   }
@@ -1675,6 +1675,9 @@ function init() {
   document.getElementById('modal-confirm-del-recipe').addEventListener('click', e => {
     if (e.target.id === 'modal-confirm-del-recipe') closeModal('modal-confirm-del-recipe');
   });
+  document.getElementById('modal-settings').addEventListener('click', e => {
+    if (e.target.id === 'modal-settings') closeModal('modal-settings');
+  });
 
   // ── Global button pulse ───────────────────────
   document.addEventListener('pointerdown', e => {
@@ -1683,6 +1686,9 @@ function init() {
     btn.classList.remove('btn-pulse');
     void btn.offsetWidth;
     btn.classList.add('btn-pulse');
+  });
+  document.addEventListener('animationend', e => {
+    if (e.animationName === 'scalePulse') e.target.classList.remove('btn-pulse');
   });
 }
 
