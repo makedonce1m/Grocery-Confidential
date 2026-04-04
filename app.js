@@ -515,11 +515,7 @@ function cycleSortMode() {
   const labels = { favourites: 'Fav first', alpha: 'A → Z', recent: 'Recent' };
   const next = modes[(modes.indexOf(state.recipeSort) + 1) % modes.length];
   state.recipeSort = next;
-  const btn = document.getElementById('recipe-sort-btn');
-  btn.textContent = labels[next];
-  btn.classList.remove('btn-pulse');
-  void btn.offsetWidth;
-  btn.classList.add('btn-pulse');
+  document.getElementById('recipe-sort-btn').textContent = labels[next];
   renderRecipes();
 }
 
@@ -1613,9 +1609,6 @@ function init() {
     const recipe = recipeById(state.activeRecipeId);
     if (recipe) renderRecipeIngredients(recipe);
     renderGrocery();
-    this.classList.remove('btn-pulse');
-    void this.offsetWidth;
-    this.classList.add('btn-pulse');
   });
 
   // ── Recipes: form page ────────────────────────
@@ -1679,6 +1672,15 @@ function init() {
   });
   document.getElementById('modal-confirm-del-recipe').addEventListener('click', e => {
     if (e.target.id === 'modal-confirm-del-recipe') closeModal('modal-confirm-del-recipe');
+  });
+
+  // ── Global button pulse ───────────────────────
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    btn.classList.remove('btn-pulse');
+    void btn.offsetWidth;
+    btn.classList.add('btn-pulse');
   });
 }
 
