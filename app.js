@@ -211,7 +211,7 @@ function convertUnit(amount, unit) {
       const floz = base / 29.5735;
       if (floz >= 128) return { amount: smartRound(floz / 128), unit: 'gallon' };
       if (floz >= 32)  return { amount: smartRound(floz / 32),  unit: 'quart' };
-      if (floz >= 8)   return { amount: smartRound(floz / 8),   unit: 'cup' };
+      if (floz >= 2)   return { amount: smartRound(floz / 8),   unit: 'cup' };
       return { amount: smartRound(floz), unit: 'fl oz' };
     }
   }
