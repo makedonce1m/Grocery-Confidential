@@ -1675,7 +1675,7 @@ function init() {
   });
 
   // ── Global button pulse ───────────────────────
-  document.addEventListener('click', e => {
+  document.addEventListener('pointerdown', e => {
     const btn = e.target.closest('button');
     if (!btn) return;
     btn.classList.remove('btn-pulse');
