@@ -795,6 +795,14 @@ body {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+@keyframes scalePulse {
+  0%   { transform: translateZ(0) scale(1); }
+  35%  { transform: translateZ(0) scale(0.88); }
+  100% { transform: translateZ(0) scale(1); }
+}
+.btn-pulse {
+  animation: scalePulse .3s cubic-bezier(.34,1.5,.64,1) forwards;
+}
 
 
 /* ── Edit mode: trash button on item cards ── */
