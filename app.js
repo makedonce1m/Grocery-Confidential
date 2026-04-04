@@ -1675,6 +1675,9 @@ function init() {
   document.getElementById('modal-confirm-del-recipe').addEventListener('click', e => {
     if (e.target.id === 'modal-confirm-del-recipe') closeModal('modal-confirm-del-recipe');
   });
+  document.getElementById('modal-settings').addEventListener('click', e => {
+    if (e.target.id === 'modal-settings') closeModal('modal-settings');
+  });
 
   // ── Global button pulse ───────────────────────
   document.addEventListener('pointerdown', e => {
