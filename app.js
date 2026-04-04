@@ -1438,13 +1438,16 @@ function init() {
     if (e.key === 'Enter') document.getElementById('confirm-add-category').click();
   });
 
-  // ── Theme toggle ──────────────────────────────
+  // ── Theme (restored on load) ──────────────────
   const savedTheme = localStorage.getItem('gc_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.classList.add('light');
-  document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? '☾' : '☀';
+  document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? 'Light' : 'Dark';
+
+  // ── Settings sheet ────────────────────────────
+  document.getElementById('settings-btn').addEventListener('click', () => openModal('modal-settings'));
   document.getElementById('theme-toggle-btn').addEventListener('click', () => {
     const isLight = document.documentElement.classList.toggle('light');
-    document.getElementById('theme-toggle-btn').textContent = isLight ? '☾' : '☀';
+    document.getElementById('theme-toggle-btn').textContent = isLight ? 'Light' : 'Dark';
     localStorage.setItem('gc_theme', isLight ? 'light' : 'dark');
   });
 

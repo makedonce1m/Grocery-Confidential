@@ -23,6 +23,7 @@
           <h1>Database</h1>
         </div>
         <div class="header-actions">
+          <button class="header-btn" id="settings-btn" aria-label="Settings">⚙</button>
           <button class="header-btn" id="edit-mode-btn">Edit</button>
           <button class="header-btn header-btn-icon" id="fab-add-item" aria-label="Add item"><span>+</span></button>
         </div>
@@ -62,7 +63,6 @@
           <h1>Recipes</h1>
         </div>
         <div class="header-actions">
-          <button class="header-btn theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">☀</button>
           <div class="recipe-filter-wrap" id="recipe-filter-wrap">
             <button class="header-btn" id="recipe-filter-btn">All</button>
             <div class="recipe-filter-dropdown" id="recipe-filter-dropdown" hidden>
@@ -350,6 +350,25 @@
         <div class="modal-footer">
           <button class="btn-secondary" data-modal="modal-confirm-del-recipe">Cancel</button>
           <button class="btn-danger" id="confirm-del-recipe-btn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS SHEET ── -->
+    <div class="modal-overlay" id="modal-settings" hidden>
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="modal-close" data-modal="modal-settings">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-row">
+            <div class="settings-row-label">
+              <div class="settings-row-title">Theme</div>
+              <div class="settings-row-sub">Switch between dark and light</div>
+            </div>
+            <button class="settings-theme-toggle" id="theme-toggle-btn">Dark</button>
+          </div>
         </div>
       </div>
     </div>
