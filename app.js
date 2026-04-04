@@ -515,7 +515,11 @@ function cycleSortMode() {
   const labels = { favourites: 'Fav first', alpha: 'A → Z', recent: 'Recent' };
   const next = modes[(modes.indexOf(state.recipeSort) + 1) % modes.length];
   state.recipeSort = next;
-  document.getElementById('recipe-sort-btn').textContent = labels[next];
+  const btn = document.getElementById('recipe-sort-btn');
+  btn.textContent = labels[next];
+  btn.classList.remove('btn-pulse');
+  void btn.offsetWidth;
+  btn.classList.add('btn-pulse');
   renderRecipes();
 }
 
@@ -1600,15 +1604,18 @@ function init() {
   document.getElementById('recipe-add-grocery-btn').addEventListener('click', () => {
     if (state.activeRecipeId) openAddToGrocerySheet(state.activeRecipeId);
   });
-  document.getElementById('recipe-units-btn').addEventListener('click', () => {
+  document.getElementById('recipe-units-btn').addEventListener('click', function() {
     state.unitSystem = state.unitSystem === 'metric' ? 'us' : 'metric';
     const label = state.unitSystem === 'metric' ? 'Metric' : 'US';
-    document.getElementById('recipe-units-btn').textContent = label;
+    this.textContent = label;
     document.getElementById('units-toggle-btn').textContent = label;
     saveData();
     const recipe = recipeById(state.activeRecipeId);
     if (recipe) renderRecipeIngredients(recipe);
     renderGrocery();
+    this.classList.remove('btn-pulse');
+    void this.offsetWidth;
+    this.classList.add('btn-pulse');
   });
 
   // ── Recipes: form page ────────────────────────

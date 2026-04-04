@@ -795,6 +795,14 @@ body {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+@keyframes scalePulse {
+  0%   { transform: translateZ(0) scale(1); }
+  35%  { transform: translateZ(0) scale(0.88); }
+  100% { transform: translateZ(0) scale(1); }
+}
+.btn-pulse {
+  animation: scalePulse .3s cubic-bezier(.34,1.5,.64,1) forwards;
+}
 
 
 /* ── Edit mode: trash button on item cards ── */
@@ -1016,9 +1024,12 @@ body {
   flex: 0 0 auto;
   margin-left: auto;
   padding: 14px 18px;
+  min-width: 82px;
+  text-align: center;
   touch-action: manipulation;
   outline: none;
   -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
 }
 .recipe-page-section { margin-bottom: 24px; }
 .recipe-section-title {
