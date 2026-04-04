@@ -76,13 +76,13 @@
             </div>
           </div>
           <button class="header-btn" id="recipe-sort-btn">Sort</button>
-          <button class="header-btn header-btn-icon" id="add-recipe-btn" aria-label="Add recipe"><span>+</span></button>
+          <button class="header-btn header-btn-icon" id="add-recipe-btn" data-no-pulse aria-label="Add recipe"><span>+</span></button>
         </div>
       </header>
       <div class="items-scroll">
         <div class="recipe-list" id="recipe-list"></div>
         <div class="empty-state" id="recipes-empty" hidden>
-          <button class="btn-primary" id="empty-add-recipe-btn">Add a recipe</button>
+          <button class="btn-primary" id="empty-add-recipe-btn" data-no-pulse>Add a recipe</button>
         </div>
       </div>
     </div>
@@ -106,13 +106,13 @@
 
     <!-- ── BOTTOM NAV ── -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" id="nav-recipes" data-view="recipes" aria-label="Recipes">
+      <button class="nav-btn active" data-no-pulse id="nav-recipes" data-view="recipes" aria-label="Recipes">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
       </button>
-      <button class="nav-btn" id="nav-grocery" data-view="grocery" aria-label="Grocery list">
+      <button class="nav-btn" data-no-pulse id="nav-grocery" data-view="grocery" aria-label="Grocery list">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
@@ -120,7 +120,7 @@
         </svg>
         <span class="nav-badge" id="grocery-badge" hidden>0</span>
       </button>
-      <button class="nav-btn" id="nav-items" data-view="items" aria-label="Items">
+      <button class="nav-btn" data-no-pulse id="nav-items" data-view="items" aria-label="Items">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="8" y1="6"  x2="21" y2="6"/>
           <line x1="8" y1="12" x2="21" y2="12"/>
@@ -135,10 +135,10 @@
     <!-- ══ RECIPE DETAIL SLIDE PAGE ══ -->
     <div id="recipe-page" class="slide-page">
       <header class="app-header">
-        <button class="header-btn" id="recipe-back-btn">‹ Back</button>
+        <button class="header-btn" id="recipe-back-btn" data-no-pulse>‹ Back</button>
         <div class="header-actions">
           <button class="header-btn" id="recipe-delete-btn">Delete</button>
-          <button class="header-btn" id="recipe-edit-btn">Edit</button>
+          <button class="header-btn" id="recipe-edit-btn" data-no-pulse>Edit</button>
         </div>
       </header>
       <div class="recipe-page-scroll" id="recipe-page-scroll">
@@ -172,7 +172,7 @@
     <!-- ══ RECIPE FORM SLIDE PAGE ══ -->
     <div id="recipe-form-page" class="slide-page">
       <header class="app-header">
-        <button class="header-btn" id="recipe-form-cancel">Cancel</button>
+        <button class="header-btn" id="recipe-form-cancel" data-no-pulse>Cancel</button>
         <h1 id="recipe-form-title">New Recipe</h1>
         <button class="header-btn" id="recipe-form-save">Save</button>
       </header>
