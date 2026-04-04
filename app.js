@@ -834,7 +834,9 @@ function renderRecipes() {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       toggleRecipeFavourite(btn.dataset.favId);
-      renderRecipes();
+      const r = recipeById(btn.dataset.favId);
+      btn.textContent = r.favourite ? '♥' : '♡';
+      btn.classList.toggle('active', r.favourite);
     })
   );
 }
@@ -1677,7 +1679,7 @@ function init() {
   // ── Global button pulse ───────────────────────
   document.addEventListener('pointerdown', e => {
     const btn = e.target.closest('button');
-    if (!btn) return;
+    if (!btn || btn.hasAttribute('data-no-pulse')) return;
     btn.classList.remove('btn-pulse');
     void btn.offsetWidth;
     btn.classList.add('btn-pulse');
