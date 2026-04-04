@@ -1009,6 +1009,9 @@ body {
   margin-bottom: 20px;
   align-items: center;
 }
+.recipe-page-actions .btn-primary {
+  flex: 0 0 auto;
+}
 .recipe-units-btn {
   flex: 0 0 auto;
   margin-left: auto;
