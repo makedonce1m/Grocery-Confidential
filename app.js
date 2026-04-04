@@ -1684,6 +1684,9 @@ function init() {
     void btn.offsetWidth;
     btn.classList.add('btn-pulse');
   });
+  document.addEventListener('animationend', e => {
+    if (e.animationName === 'scalePulse') e.target.classList.remove('btn-pulse');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
