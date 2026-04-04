@@ -27,6 +27,7 @@ const state = {
   atgServings:        1,
   atgChecked:         new Set(),
   pantryItemIds:      new Set(),
+  unitSystem: 'metric',
 };
 
 // ══════════════════════════════════════════════
@@ -44,6 +45,7 @@ function saveData() {
     deletedCategoryIds: state.deletedCategoryIds,
     recipes:            state.recipes,
     pantryItemIds:      [...state.pantryItemIds],
+    unitSystem: state.unitSystem,
   };
   try { localStorage.setItem(STORE_KEY, JSON.stringify(payload)); }
   catch (e) { console.warn('Could not save:', e); }
@@ -103,6 +105,8 @@ function loadData() {
     if (Array.isArray(data.pantryItemIds))
       state.pantryItemIds = new Set(data.pantryItemIds);
 
+    if (data.unitSystem) state.unitSystem = data.unitSystem;
+
   } catch (e) {
     console.warn('Could not load saved data:', e);
   }
@@ -160,6 +164,65 @@ function esc(str) {
 }
 
 function uid() { return `${Date.now()}_${Math.random().toString(36).slice(2,7)}`; }
+
+// ══════════════════════════════════════════════
+//  UNIT CONVERSION
+// ══════════════════════════════════════════════
+
+const UNIT_INFO = {
+  g:       { type: 'weight', base: 1 },
+  kg:      { type: 'weight', base: 1000 },
+  oz:      { type: 'weight', base: 28.3495 },
+  lb:      { type: 'weight', base: 453.592 },
+  ml:      { type: 'volume', base: 1 },
+  L:       { type: 'volume', base: 1000 },
+  'fl oz': { type: 'volume', base: 29.5735 },
+  cup:     { type: 'volume', base: 240 },
+  pint:    { type: 'volume', base: 473.176 },
+  quart:   { type: 'volume', base: 946.353 },
+  gallon:  { type: 'volume', base: 3785.41 },
+};
+
+function smartRound(n) {
+  if (n >= 100) return Math.round(n);
+  if (n >= 10)  return Math.round(n * 10) / 10;
+  return Math.round(n * 100) / 100;
+}
+
+function convertUnit(amount, unit) {
+  if (!amount || !unit) return { amount, unit };
+  const info = UNIT_INFO[unit];
+  if (!info) return { amount, unit }; // spoon/count — neutral
+  const base = amount * info.base;
+  if (state.unitSystem === 'metric') {
+    if (info.type === 'weight') {
+      if (base >= 1000) return { amount: smartRound(base / 1000), unit: 'kg' };
+      return { amount: smartRound(base), unit: 'g' };
+    } else {
+      if (base >= 1000) return { amount: smartRound(base / 1000), unit: 'L' };
+      return { amount: smartRound(base), unit: 'ml' };
+    }
+  } else {
+    if (info.type === 'weight') {
+      const oz = base / 28.3495;
+      if (oz >= 16) return { amount: smartRound(oz / 16), unit: 'lb' };
+      return { amount: smartRound(oz), unit: 'oz' };
+    } else {
+      const floz = base / 29.5735;
+      if (floz >= 128) return { amount: smartRound(floz / 128), unit: 'gallon' };
+      if (floz >= 32)  return { amount: smartRound(floz / 32),  unit: 'quart' };
+      if (floz >= 8)   return { amount: smartRound(floz / 8),   unit: 'cup' };
+      return { amount: smartRound(floz), unit: 'fl oz' };
+    }
+  }
+}
+
+function fmtAmt(amount, unit) {
+  if (!amount && !unit) return '';
+  if (!amount) return unit;
+  const c = convertUnit(amount, unit);
+  return c.unit ? `${c.amount} ${c.unit}`.trim() : `${c.amount}`;
+}
 
 // ══════════════════════════════════════════════
 //  ACTIONS
@@ -675,7 +738,7 @@ function renderGrocery() {
   const checked   = state.groceryList.filter(g =>  g.checked);
 
   const renderItem = g => {
-    const qtyStr = [g.quantity, g.unit].filter(Boolean).join(' ');
+    const qtyStr = fmtAmt(g.quantity, g.unit);
     return `
     <div class="grocery-item${g.checked ? ' checked' : ''}" data-gid="${esc(g.id)}">
       <div class="g-col-qty" data-action="edit-qty" data-gid="${esc(g.id)}">${esc(qtyStr)}</div>
@@ -908,7 +971,7 @@ function openRecipePage(id) {
   if (recipe.ingredients?.length) {
     ingSection.hidden = false;
     ingEl.innerHTML = recipe.ingredients.map((ing, i) => {
-      const amt = ing.amount ? `${ing.amount} ${ing.unit}`.trim() : (ing.unit || '');
+      const amt = fmtAmt(ing.amount, ing.unit);
       return `<div class="recipe-ing-row" data-ing-idx="${i}">
         <span class="recipe-ing-name">${esc(ing.itemName)}</span>
         ${amt ? `<span class="recipe-ing-amt">${esc(amt)}</span>` : ''}
@@ -1209,8 +1272,8 @@ function renderAtgSheet() {
 
   document.getElementById('atg-ingredients-list').innerHTML = recipe.ingredients.map((ing, i) => {
     const checked = state.atgChecked.has(i);
-    const scaledAmt = Math.round(ing.amount * scale * 100) / 100;
-    const amtStr = scaledAmt ? `${scaledAmt} ${ing.unit}`.trim() : ing.unit || '';
+    const scaledAmt = ing.amount ? Math.round(ing.amount * scale * 100) / 100 : 0;
+    const amtStr = fmtAmt(scaledAmt, ing.unit);
     return `<div class="atg-ingredient-row" data-ing-idx="${i}">
       <div class="atg-check${checked ? ' checked' : ''}">${checked ? '✓' : ''}</div>
       <span class="atg-ing-name">${esc(ing.itemName)}</span>
@@ -1438,14 +1501,26 @@ function init() {
     if (e.key === 'Enter') document.getElementById('confirm-add-category').click();
   });
 
-  // ── Theme toggle ──────────────────────────────
+  // ── Theme (restored on load) ──────────────────
   const savedTheme = localStorage.getItem('gc_theme') || 'dark';
   if (savedTheme === 'light') document.documentElement.classList.add('light');
-  document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? '☾' : '☀';
+  document.getElementById('theme-toggle-btn').textContent = savedTheme === 'light' ? 'Light' : 'Dark';
+
+  // ── Settings sheet ────────────────────────────
+  document.getElementById('settings-btn').addEventListener('click', () => openModal('modal-settings'));
   document.getElementById('theme-toggle-btn').addEventListener('click', () => {
     const isLight = document.documentElement.classList.toggle('light');
-    document.getElementById('theme-toggle-btn').textContent = isLight ? '☾' : '☀';
+    document.getElementById('theme-toggle-btn').textContent = isLight ? 'Light' : 'Dark';
     localStorage.setItem('gc_theme', isLight ? 'light' : 'dark');
+  });
+  const unitToggleBtn = document.getElementById('units-toggle-btn');
+  unitToggleBtn.textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
+  unitToggleBtn.addEventListener('click', () => {
+    state.unitSystem = state.unitSystem === 'metric' ? 'us' : 'metric';
+    unitToggleBtn.textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
+    saveData();
+    renderGrocery();
+    if (state.activeRecipeId) openRecipePage(state.activeRecipeId);
   });
 
   // ── Tag filter dropdown ───────────────────────

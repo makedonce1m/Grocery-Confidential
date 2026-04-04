@@ -131,11 +131,8 @@ body {
   opacity: .8;
   box-shadow: var(--shadow-sm);
 }
-.theme-toggle-btn {
-  background: var(--surface-2);
-  border: 1.5px solid var(--border);
-  color: var(--text-2);
-  box-shadow: var(--shadow-sm);
+.settings-btn {
+  font-size: 16px;
 }
 
 /* ── Search ── */
@@ -726,6 +723,40 @@ body {
   transition: opacity .15s;
 }
 .btn-secondary:active { opacity: .7; }
+
+/* ── Settings sheet ── */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+}
+.settings-row-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.settings-row-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.settings-theme-toggle {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  box-shadow: var(--shadow-sm);
+  transition: background .15s, color .15s;
+}
+.settings-theme-toggle:active { opacity: .7; }
 
 /* ── Toast ── */
 .toast {
