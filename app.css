@@ -1003,6 +1003,17 @@ body {
   vertical-align: middle;
 }
 
+.recipe-page-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.recipe-page-actions .btn-primary { flex: 1; }
+.recipe-units-btn {
+  flex-shrink: 0;
+  padding: 14px 18px;
+  min-width: 74px;
+}
 .recipe-page-section { margin-bottom: 24px; }
 .recipe-section-title {
   font-size: 14px;

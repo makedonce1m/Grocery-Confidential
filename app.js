@@ -995,6 +995,7 @@ function openRecipePage(id) {
     section.hidden = true;
   }
 
+  document.getElementById('recipe-units-btn').textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
   document.getElementById('recipe-page').classList.add('open');
 
   document.getElementById('recipe-page-meta').addEventListener('click', e => {
@@ -1594,6 +1595,14 @@ function init() {
   });
   document.getElementById('recipe-add-grocery-btn').addEventListener('click', () => {
     if (state.activeRecipeId) openAddToGrocerySheet(state.activeRecipeId);
+  });
+  document.getElementById('recipe-units-btn').addEventListener('click', () => {
+    state.unitSystem = state.unitSystem === 'metric' ? 'us' : 'metric';
+    document.getElementById('recipe-units-btn').textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
+    document.getElementById('units-toggle-btn').textContent = state.unitSystem === 'metric' ? 'Metric' : 'US';
+    saveData();
+    if (state.activeRecipeId) openRecipePage(state.activeRecipeId);
+    renderGrocery();
   });
 
   // ── Recipes: form page ────────────────────────
